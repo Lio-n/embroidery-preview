@@ -1,8 +1,8 @@
 import "./App.css";
-import { EmbroideryViewer } from "./components/EmbroideryViewer";
+import { EmbroideryViewerFiber } from "./components/EmbroideryViewer";
 
 function App() {
-  return <EmbroideryViewer></EmbroideryViewer>;
+  return <EmbroideryViewerFiber></EmbroideryViewerFiber>;
 }
 
 export default App;

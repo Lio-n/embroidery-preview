@@ -1,8 +1,11 @@
+import type { ColorGroup } from "../components/ColorGroup";
 import { parseDST } from "./parseDST";
-import * as THREE from "three/webgpu";
+import * as THREE from "three";
 
-export const loaderDSTFile = async (file: File): Promise<THREE.Line> => {
-  const geometry = await parseDST(file);
+export const loaderDSTFile = async (
+  file: File
+): Promise<[THREE.Line, ColorGroup[]]> => {
+  const { geometry, colorGroup } = await parseDST(file);
 
   const material = new THREE.LineBasicMaterial({ vertexColors: true });
 
@@ -10,5 +13,5 @@ export const loaderDSTFile = async (file: File): Promise<THREE.Line> => {
 
   lines.scale.set(0.01, 0.01, 0.01);
   lines.updateMatrixWorld(true);
-  return lines;
+  return [lines, colorGroup];
 };

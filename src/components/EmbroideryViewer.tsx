@@ -1,89 +1,64 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { EmbroideryLine } from "./EmbroideryLine";
 import { loaderDSTFile } from "../utils/loaderDSTFile";
-import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { DrawRange } from "./DrawRange";
+import { ColorGroup } from "./ColorGroup";
 
-export function EmbroideryViewer() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer>(null);
-  const [uploadFile, setUploadFile] = useState<File>();
-  const [lineFile, setLineFile] = useState<THREE.Line>();
-
-  useEffect(() => {
-    if (uploadFile) {
-      loaderDSTFile(uploadFile).then((e) => {
-        setLineFile(e);
-      });
-    }
-  }, [uploadFile]);
+export const EmbroideryViewerFiber = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [threeLine, setThreeLine] = useState<THREE.Line | null>(null);
+  const geometryRef = useRef<THREE.BufferGeometry | null>(null);
+  const [colorGroups, setColorGroups] = useState<ColorGroup[]>();
 
   useEffect(() => {
-    if (lineFile) {
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xfefefe);
+    let isMounted = true;
+    if (!file) return;
 
-      const camera = new THREE.PerspectiveCamera(
-        45,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
-      camera.position.set(0, 0, 10);
+    loaderDSTFile(file).then((threeLine) => {
+      if (isMounted) {
+        setThreeLine(threeLine[0]);
+        setColorGroups(threeLine[1]);
+        geometryRef.current = threeLine[0].geometry as THREE.BufferGeometry;
+      }
+    });
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      containerRef.current!.appendChild(renderer.domElement);
-      rendererRef.current = renderer;
-
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(10, 10, 10);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-
-      scene.add(lineFile);
-
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.screenSpacePanning = false;
-      controls.minDistance = 1;
-      controls.maxDistance = 50;
-
-      const animate = () => {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      };
-      animate();
-
-      const handleResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      };
-      window.addEventListener("resize", handleResize);
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-        renderer.dispose();
-      };
-    }
-  }, [lineFile]);
+    return () => {
+      isMounted = false;
+    };
+  }, [file]);
 
   return (
-    <div>
+    <>
       <input
         accept=".dst"
         type="file"
-        name="upload_dst"
-        id="dst"
         onChange={(e) => {
-          if (e.target.files?.length) {
-            setUploadFile(e.target.files[0]);
+          if (e.target.files?.[0]) {
+            setFile(e.target.files[0]);
           }
         }}
       />
-      <div ref={containerRef} style={{ width: "100%", height: "100vh" }} />
-    </div>
+      {threeLine && <DrawRange geometryRef={geometryRef} />}
+      {colorGroups && (
+        <ColorGroup geometryRef={geometryRef} colorGroups={colorGroups} />
+      )}
+
+      <div style={{ width: "80vw", height: "100vh" }}>
+        <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+          <ambientLight intensity={0.4} />
+          <directionalLight position={[10, 10, 10]} intensity={1} />
+          <OrbitControls
+            enableDamping
+            dampingFactor={0.05}
+            minDistance={1}
+            maxDistance={50}
+          />
+          {threeLine && <EmbroideryLine line={threeLine} />}
+        </Canvas>
+      </div>
+    </>
   );
-}
+};

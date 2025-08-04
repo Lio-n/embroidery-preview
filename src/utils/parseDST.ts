@@ -1,39 +1,44 @@
+import type { ColorGroup } from "../components/ColorGroup";
 import { blobToData } from "../helpers/processBuffer.helper";
+import { processGeometry } from "../helpers/processGeometry.helper";
 import { decodeCoord } from "./decodeCoord";
 import { decodeHeader } from "./docodeHeader";
 import { parseColor } from "./parseColor";
-import * as THREE from "three/webgpu";
+import * as THREE from "three";
 
-const processGeometry = (
-  vertices: number[],
-  colors: number[]
-): THREE.BufferGeometry => {
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(vertices, 3)
-  );
-  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-
-  return geometry;
+type PromiseParseDST = {
+  geometry: THREE.BufferGeometry;
+  colorGroup: ColorGroup[];
 };
 
 type StitchBlock = {
   vertices: number[];
   colors: number[];
 };
-export const parseDST = async (file: File): Promise<THREE.BufferGeometry> => {
+export const parseDST = async (file: File): Promise<PromiseParseDST> => {
   const buffer = await blobToData(file);
-  const dataView = new DataView(buffer);
   const header = decodeHeader(buffer);
   const threeColors = parseColor(parseInt(header?.CO));
+
+  const dataView = new DataView(buffer);
+
   let currentColor = threeColors[0];
-  let index = 0;
-  let cx = 0,
+  let index = 0,
+    cx = 0,
     cy = 0;
 
   const blocks: StitchBlock[] = [];
   let currentBlock: StitchBlock = { vertices: [], colors: [] };
+
+  const colorGroup: ColorGroup[] = [];
+  let pointIndex = 0;
+
+  let currentGroup: ColorGroup = {
+    index,
+    start: pointIndex,
+    count: 0,
+    color: [currentColor.r, currentColor.g, currentColor.b],
+  };
 
   for (let i = 512; i < dataView.byteLength; i += 3) {
     if (i >= dataView.byteLength - 3) break;
@@ -50,6 +55,9 @@ export const parseDST = async (file: File): Promise<THREE.BufferGeometry> => {
     cy += y;
 
     if (color_stop) {
+      currentGroup.count = pointIndex - currentGroup.start;
+      colorGroup.push(currentGroup);
+
       if (currentBlock.vertices.length > 0) {
         blocks.push(currentBlock);
         currentBlock = { vertices: [], colors: [] };
@@ -57,11 +65,24 @@ export const parseDST = async (file: File): Promise<THREE.BufferGeometry> => {
 
       index++;
       currentColor = threeColors[index % threeColors.length];
+
+      // new color group
+      currentGroup = {
+        index,
+        start: pointIndex,
+        count: 0,
+        color: [currentColor.r, currentColor.g, currentColor.b],
+      };
     }
 
-    currentBlock.vertices.push(cx, cy, 0);
+    currentBlock.vertices.push(cx, cy, 0); // Z-coordinate is 0 as embroidery designs are 2D
     currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
+
+    pointIndex++;
   }
+
+  currentGroup.count = pointIndex - currentGroup.start;
+  colorGroup.push(currentGroup);
 
   if (currentBlock.vertices.length > 0) {
     blocks.push(currentBlock);
@@ -77,10 +98,14 @@ export const parseDST = async (file: File): Promise<THREE.BufferGeometry> => {
   });
 
   console.log("VERTICES - COLORS : ", { mergedVertices, mergedColors });
+
   // THREE GEOMETRY : position=vertice - color=colors
   const geometry = processGeometry(mergedVertices, mergedColors);
 
-  return geometry;
+  return {
+    geometry,
+    colorGroup,
+  };
 };
 // The DST file is just a collection of stitch start and end points on a piece of fabric.
 

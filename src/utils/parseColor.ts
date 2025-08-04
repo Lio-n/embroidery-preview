@@ -1,5 +1,6 @@
-import * as THREE from "three/webgpu";
+import * as THREE from "three";
 
+// Fix this, color numbers should use numbers between 0-255
 export const parseColor = (colorCount: number): THREE.Color[] => {
   const vector0 = new THREE.Vector3();
   const threeColors: THREE.Color[] = [];
@@ -7,17 +8,18 @@ export const parseColor = (colorCount: number): THREE.Color[] => {
   let colorRed = 1,
     colorGreen = 1,
     colorBlue = 1;
-  // let aux_color: string = "";
+  let aux_color: string = "";
   const index = 0;
 
   while (palette.length < colorCount + 1) {
-    colorRed = Math.random();
-    colorGreen = Math.random();
-    colorBlue = Math.random();
+    colorRed = Math.floor(Math.random() * (255 - 0 + 1)) + 0;
+    colorGreen = Math.floor(Math.random() * (255 - 0 + 1)) + 0;
+    colorBlue = Math.floor(Math.random() * (255 - 0 + 1)) + 0;
+
     vector0.set(colorRed, colorGreen, colorBlue).normalize();
-    palette.push(
-      "#" + new THREE.Color(vector0.x, vector0.y, vector0.z).getHexString()
-    );
+    aux_color =
+      "#" + new THREE.Color(vector0.x, vector0.y, vector0.z).getHexString();
+    palette.push(aux_color);
   }
 
   for (let i = 0; i < palette.length; i++) {
@@ -27,16 +29,8 @@ export const parseColor = (colorCount: number): THREE.Color[] => {
     colorGreen = p.g;
     colorBlue = p.b;
   }
-  // while (threeColors.length < colorCount + 1) {
-  //   colorRed = Math.random();
-  //   colorGreen = Math.random();
-  //   colorBlue = Math.random();
-  //   vector0.set(colorRed, colorGreen, colorBlue).normalize();
-  //   aux_color =
-  //     "#" + new THREE.Color(vector0.x, vector0.y, vector0.z).getHexString();
 
-  //   threeColors.push(new THREE.Color(aux_color));
-  // }
+  console.log({ threeColors });
 
   return threeColors;
 };
