@@ -1,27 +1,26 @@
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { EmbroideryLine } from "./EmbroideryLine";
 import { loaderDSTFile } from "../utils/loaderDSTFile";
+import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { DrawRange } from "./DrawRange";
 import { ColorGroup } from "./ColorGroup";
 
 export const EmbroideryViewerFiber = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [threeLine, setThreeLine] = useState<THREE.Line | null>(null);
-  const geometryRef = useRef<THREE.BufferGeometry | null>(null);
-  const [colorGroups, setColorGroups] = useState<ColorGroup[]>();
+  const embroideryStore = useEmbroideryStore();
 
   useEffect(() => {
     let isMounted = true;
     if (!file) return;
 
-    loaderDSTFile(file).then((threeLine) => {
+    loaderDSTFile(file).then((data) => {
       if (isMounted) {
-        setThreeLine(threeLine.lines);
-        setColorGroups(threeLine.colorGroup);
-        geometryRef.current = threeLine.lines.geometry as THREE.BufferGeometry;
+        embroideryStore.updateSource({
+          geometries: data.lines,
+          colorGroup: data.colorGroup,
+        });
       }
     });
 
@@ -41,10 +40,8 @@ export const EmbroideryViewerFiber = () => {
           }
         }}
       />
-      {threeLine && <DrawRange geometryRef={geometryRef} />}
-      {colorGroups && (
-        <ColorGroup geometryRef={geometryRef} colorGroups={colorGroups} />
-      )}
+      {embroideryStore.geometries && <DrawRange />}
+      {embroideryStore.colorGroup && <ColorGroup />}
 
       <div style={{ width: "80vw", height: "100vh" }}>
         <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
@@ -56,7 +53,10 @@ export const EmbroideryViewerFiber = () => {
             minDistance={1}
             maxDistance={50}
           />
-          {threeLine && <EmbroideryLine line={threeLine} />}
+
+          {embroideryStore.geometries?.map((geometry, i) => (
+            <EmbroideryLine key={i} line={geometry} />
+          ))}
         </Canvas>
       </div>
     </>

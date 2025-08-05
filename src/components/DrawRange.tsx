@@ -1,32 +1,44 @@
-import { useEffect, useState, type RefObject } from "react";
 import * as THREE from "three";
+import { useEffect, useMemo, useState } from "react";
+import { useEmbroideryStore } from "@/stores/embroiderySource.store";
+import { Slider } from "./ui/slider";
 
-type DrawRange = {
-  geometryRef: RefObject<THREE.BufferGeometry<
-    THREE.NormalBufferAttributes,
-    THREE.BufferGeometryEventMap
-  > | null>;
-};
-export const DrawRange = ({ geometryRef }: DrawRange) => {
-  const [progress, setProgress] = useState(100);
+export const DrawRange = () => {
+  const embroideryStore = useEmbroideryStore();
+  const [progress, setProgress] = useState(Infinity);
+  const [geometries] = useState<THREE.Line[]>(embroideryStore.geometries || []);
 
-  // Update drawRange every frame if progress changes
   useEffect(() => {
-    if (geometryRef.current) {
-      const count = geometryRef.current.getAttribute("position").count;
-      const visibleCount = Math.floor((progress / 100) * count);
-      geometryRef.current.setDrawRange(0, visibleCount);
-    }
+    if (!geometries) return;
+
+    let remaining = progress;
+    geometries.forEach((line) => {
+      const vertexCount = line.geometry.getAttribute("position").count;
+      if (remaining > 0) {
+        const showCount = Math.min(vertexCount, remaining);
+        line.geometry.setDrawRange(0, showCount);
+        remaining -= showCount;
+      } else {
+        line.geometry.setDrawRange(0, 0);
+      }
+    });
   }, [progress]);
 
+  const maxDrawRange = useMemo(() => {
+    return (
+      geometries?.reduce((sum, line) => {
+        const count = line.geometry.getAttribute("position").count;
+        return sum + count;
+      }, 0) ?? 1
+    );
+  }, [geometries]);
+
   return (
-    <input
-      type="range"
-      min={0}
-      max={100}
-      value={progress}
-      onChange={(e) => setProgress(parseInt(e.target.value))}
-      style={{ position: "absolute", top: 10, left: 10, zIndex: 1 }}
+    <Slider
+      defaultValue={[Infinity]}
+      max={maxDrawRange}
+      step={10}
+      onValueChange={(e) => setProgress(e[0])}
     />
   );
 };

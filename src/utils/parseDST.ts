@@ -7,7 +7,7 @@ import { parseColor } from "./parseColor";
 import * as THREE from "three";
 
 type PromiseParseDST = {
-  geometry: THREE.BufferGeometry;
+  geometries: THREE.BufferGeometry[];
   colorGroup: ColorGroup[];
 };
 
@@ -99,24 +99,25 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
   const mergedColors: number[] = [];
 
   // unify blocks
-  blocks.forEach((b, i) => {
+  blocks.forEach((b) => {
     mergedVertices.push(...b.vertices);
     mergedColors.push(...b.colors);
 
     // Add NaN to separate blocks visually in the geometry
     // This is optional, but it helps in visualizing the separation between blocks
-    if (i < blocks.length - 1) {
-      mergedVertices.push(NaN, NaN, NaN);
-      mergedColors.push(NaN, NaN, NaN);
-    }
+    // if (i < blocks.length - 1) {
+    //   mergedVertices.push(NaN, NaN, NaN);
+    //   mergedColors.push(NaN, NaN, NaN);
+    // }
   });
 
   console.log("VERTICES - COLORS : ", { mergedVertices, mergedColors });
 
   // THREE GEOMETRY : position=vertice - color=colors
-  const geometry = processGeometry(mergedVertices, mergedColors);
+  const geometries = blocks.map((b) => processGeometry(b.vertices, b.colors));
+
   return {
-    geometry,
+    geometries,
     colorGroup,
   };
 };

@@ -1,3 +1,4 @@
+import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { useState, type RefObject } from "react";
 import * as THREE from "three";
 
@@ -13,30 +14,44 @@ export type ColorRange = {
     THREE.NormalBufferAttributes,
     THREE.BufferGeometryEventMap
   > | null>;
-  colorGroups: ColorGroup[];
+  colorGroup: ColorGroup[];
 };
-export const ColorGroup = ({ geometryRef, ...props }: ColorRange) => {
-  const [colorGroups, setColorGroups] = useState<ColorGroup[]>(
-    props.colorGroups
+
+export const ColorGroup = () => {
+  const embroideryStore = useEmbroideryStore();
+  const [colorGroups] = useState<ColorGroup[]>(
+    embroideryStore.colorGroup || []
   );
 
   const applyColors = () => {
-    const colorArray: number[] = [];
+    if (!embroideryStore.geometries || !colorGroups.length) return;
 
-    for (const group of colorGroups) {
-      for (let i = 0; i < group.count; i++) {
-        const [r, g, b] = group.color;
+    let stitchIndex = 0;
+    let groupIdx = 0;
+    let group = colorGroups[groupIdx];
+
+    embroideryStore.geometries.forEach((geometry) => {
+      const vertexCount = geometry.geometry.getAttribute("position").count;
+      // while the group exists and the stitch index is greater than the start + count of the group
+      while (group && stitchIndex >= group.start + group.count) {
+        groupIdx++;
+        group = colorGroups[groupIdx];
+      }
+      // If we run out of groups, just use the last one
+      const colorArray: number[] = [];
+      const [r, g, b] = group ? group.color : [1, 1, 1];
+      for (let i = 0; i < vertexCount; i++) {
         colorArray.push(r, g, b);
       }
-    }
-
-    geometryRef.current?.setAttribute(
-      "color",
-      new THREE.Float32BufferAttribute(colorArray, 3)
-    );
+      geometry.geometry.setAttribute(
+        "color",
+        new THREE.Float32BufferAttribute(colorArray, 3)
+      );
+      stitchIndex += vertexCount;
+    });
   };
 
-  return colorGroups ? (
+  return (
     <>
       {colorGroups.map((group, idx) => (
         <input
@@ -58,11 +73,10 @@ export const ColorGroup = ({ geometryRef, ...props }: ColorRange) => {
             const updated = [...colorGroups];
             updated[idx].color = [r, g, b];
 
-            setColorGroups(updated);
             applyColors();
           }}
         />
       ))}
     </>
-  ) : null;
+  );
 };
