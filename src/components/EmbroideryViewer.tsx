@@ -19,9 +19,9 @@ export const EmbroideryViewerFiber = () => {
 
     loaderDSTFile(file).then((threeLine) => {
       if (isMounted) {
-        setThreeLine(threeLine[0]);
-        setColorGroups(threeLine[1]);
-        geometryRef.current = threeLine[0].geometry as THREE.BufferGeometry;
+        setThreeLine(threeLine.lines);
+        setColorGroups(threeLine.colorGroup);
+        geometryRef.current = threeLine.lines.geometry as THREE.BufferGeometry;
       }
     });
 

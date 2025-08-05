@@ -50,7 +50,7 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
     // Check for end of file sequence
     if (byte1 === 0x00 && byte2 === 0x00 && byte3 === 0xf3) break;
 
-    const { x, y, color_stop } = decodeCoord(byte3, byte2, byte1);
+    const { x, y, color_stop, jump } = decodeCoord(byte3, byte2, byte1);
     cx += x;
     cy += y;
 
@@ -75,9 +75,16 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
       };
     }
 
+    if (jump) {
+      if (currentBlock.vertices.length > 0) {
+        blocks.push(currentBlock);
+        currentBlock = { vertices: [], colors: [] };
+      }
+      continue; // Skip jump stitches
+    }
+
     currentBlock.vertices.push(cx, cy, 0); // Z-coordinate is 0 as embroidery designs are 2D
     currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
-
     pointIndex++;
   }
 
@@ -92,21 +99,26 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
   const mergedColors: number[] = [];
 
   // unify blocks
-  blocks.forEach((b) => {
+  blocks.forEach((b, i) => {
     mergedVertices.push(...b.vertices);
     mergedColors.push(...b.colors);
+
+    // Add NaN to separate blocks visually in the geometry
+    // This is optional, but it helps in visualizing the separation between blocks
+    if (i < blocks.length - 1) {
+      mergedVertices.push(NaN, NaN, NaN);
+      mergedColors.push(NaN, NaN, NaN);
+    }
   });
 
   console.log("VERTICES - COLORS : ", { mergedVertices, mergedColors });
 
   // THREE GEOMETRY : position=vertice - color=colors
   const geometry = processGeometry(mergedVertices, mergedColors);
-
   return {
     geometry,
     colorGroup,
   };
 };
 // The DST file is just a collection of stitch start and end points on a piece of fabric.
-
 // What I did in my DST loader is simulate that machine… and instead of thread, i draw quads with a texture of a small piece of thread on them, so when they are combined side by side it looks like the embroidery.

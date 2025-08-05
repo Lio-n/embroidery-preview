@@ -2,9 +2,14 @@ import type { ColorGroup } from "../components/ColorGroup";
 import { parseDST } from "./parseDST";
 import * as THREE from "three";
 
+type PromiseLoaderDSTFile = {
+  lines: THREE.Line;
+  colorGroup: ColorGroup[];
+};
+
 export const loaderDSTFile = async (
   file: File
-): Promise<[THREE.Line, ColorGroup[]]> => {
+): Promise<PromiseLoaderDSTFile> => {
   const { geometry, colorGroup } = await parseDST(file);
 
   const material = new THREE.LineBasicMaterial({ vertexColors: true });
@@ -13,5 +18,5 @@ export const loaderDSTFile = async (
 
   lines.scale.set(0.01, 0.01, 0.01);
   lines.updateMatrixWorld(true);
-  return [lines, colorGroup];
+  return { lines, colorGroup };
 };
