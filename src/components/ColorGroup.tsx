@@ -1,5 +1,5 @@
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
-import { useState, type RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import * as THREE from "three";
 
 export type ColorGroup = {
@@ -19,7 +19,7 @@ export type ColorRange = {
 
 export const ColorGroup = () => {
   const embroideryStore = useEmbroideryStore();
-  const [colorGroups] = useState<ColorGroup[]>(
+  const [colorGroups, setColorGroups] = useState<ColorGroup[]>(
     embroideryStore.colorGroup || []
   );
 
@@ -51,10 +51,19 @@ export const ColorGroup = () => {
     });
   };
 
+  useEffect(() => {
+    setColorGroups(embroideryStore.colorGroup || []);
+  }, [embroideryStore.colorGroup]);
+
+  useEffect(() => {
+    if (colorGroups) applyColors();
+  }, [colorGroups]);
+
   return (
-    <>
+    <div className="flex flex-wrap gap-2">
       {colorGroups.map((group, idx) => (
         <input
+          className="size-6 rounded-full border-none cursor-pointer"
           key={idx}
           type="color"
           value={`#${group.color
@@ -73,10 +82,11 @@ export const ColorGroup = () => {
             const updated = [...colorGroups];
             updated[idx].color = [r, g, b];
 
-            applyColors();
+            setColorGroups(updated);
+            // applyColors();
           }}
         />
       ))}
-    </>
+    </div>
   );
 };

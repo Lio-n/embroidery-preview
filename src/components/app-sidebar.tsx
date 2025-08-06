@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
+import { VolleyballIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -14,10 +14,16 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Slider } from "./ui/slider";
+import { DrawRange } from "./DrawRange";
+import { ColorGroup } from "./ColorGroup";
+import {
+  useEmbroideryStore,
+  type EmbroideryState,
+} from "@/stores/embroiderySource.store";
+import { UploadFile } from "./uploadFile";
 
 /*
-// This is sample data.
+// This is sample data
 const data = {
   navMain: [
     {
@@ -172,25 +178,12 @@ const data = {
 }
 */
 
-const data = {
-  navMain: [
-    {
-      title: "Controls",
-      items: [
-        {
-          title: "DrawRange",
-          component: <Slider defaultValue={[33]} max={100} step={5} />,
-        },
-        {
-          title: "Palette",
-          component: <p>pallete</p>,
-        },
-      ],
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const embroideryStore = useEmbroideryStore();
+  const isFileLoaded = embroideryStore.geometries
+    ? embroideryStore.geometries.length > 0
+    : false;
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -199,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
+                  <VolleyballIcon className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">Embroidery Preview</span>
@@ -211,37 +204,132 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent className="pr-4">
+        <SidebarGroup className="flex justify-between h-full gap-8">
           <SidebarMenu>
-            {data.navMain.map((item) => (
+            <MenuControls isFileLoaded={isFileLoaded} />
+            <MenuFileDetails
+              isFileLoaded={isFileLoaded}
+              data={embroideryStore.file_details}
+            />
+          </SidebarMenu>
+
+          <UploadFile />
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarRail className="!py-2 !px-4" />
+    </Sidebar>
+  );
+}
+
+const MenuControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
+  return (
+    <SidebarMenuItem key={"Controls"}>
+      <SidebarMenuButton asChild>
+        <p className="select-none font-semibold">Controls</p>
+      </SidebarMenuButton>
+
+      {isFileLoaded ? (
+        <SidebarMenuSub>
+          <SidebarMenuSubItem key={"DrawnRange"} className="mb-4">
+            <p className="pb-3 text-start select-none text-sm font-medium">
+              DrawnRange
+            </p>
+            <DrawRange />
+          </SidebarMenuSubItem>
+
+          <SidebarMenuSubItem key={"ColorGroup"} className="mb-4">
+            <p className="pb-3 text-start select-none text-sm font-medium">
+              ColorGroup
+            </p>
+            <ColorGroup />
+          </SidebarMenuSubItem>
+        </SidebarMenuSub>
+      ) : (
+        <p className="italic select-none text-xs">No file loaded</p>
+      )}
+    </SidebarMenuItem>
+  );
+};
+
+const MenuFileDetails = ({
+  isFileLoaded,
+  data,
+}: {
+  isFileLoaded: boolean;
+  data: EmbroideryState["file_details"];
+}) => {
+  return (
+    <SidebarMenuItem key="File Details">
+      <SidebarMenuButton asChild>
+        <p className="select-none font-semibold">File Details</p>
+      </SidebarMenuButton>
+
+      {isFileLoaded ? (
+        <SidebarMenuSub className="text-xs text-left">
+          <SidebarMenuSubItem key={"file_name"} className="mb-1">
+            Name: <span className="font-semibold">{data?.name || "N/A"}</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"color_changes"} className="mb-1">
+            Color Changes:{" "}
+            <span className="font-semibold">
+              {data?.color_changes || "N/A"}
+            </span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"stitches"} className="mb-1">
+            Stitches:{" "}
+            <span className="font-semibold">{data?.stitches || "N/A"}</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"jumps"} className="mb-1">
+            Jumps: <span className="font-semibold">{data?.jumps || "N/A"}</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"size"} className="mb-1">
+            Size:{" "}
+            <span className="font-semibold">
+              {data?.size.toFixed(2) || "N/A"} kb
+            </span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"size"} className="mb-1">
+            Width:{" "}
+            <span className="font-semibold">{data?.width || "N/A"} mm</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"size"} className="mb-1">
+            Height:{" "}
+            <span className="font-semibold">{data?.height || "N/A"} mm</span>
+          </SidebarMenuSubItem>
+        </SidebarMenuSub>
+      ) : (
+        <p className="italic select-none text-xs">No file loaded</p>
+      )}
+    </SidebarMenuItem>
+  );
+};
+
+/*
+ {data?.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
-                  {/* <a href={item.url} className="font-medium"> */}
                   <p className="select-none font-semibold">{item.title}</p>
-                  {/* </a> */}
                 </SidebarMenuButton>
 
                 {item.items?.length ? (
                   <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title} className="mb-4">
-                        {/* <SidebarMenuSubButton asChild isActive={item.isActive}> */}
+                    {item.items.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title} className="mb-4">
                         <p className="pb-3 text-start select-none text-xs font-medium">
                           {item.title}
                         </p>
-                        {item.component}
-                        {/* </SidebarMenuSubButton>  */}
+                        {subItem.component
+                          ? React.isValidElement(subItem.component)
+                            ? subItem.component
+                            : null
+                          : null}
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>
                 ) : null}
               </SidebarMenuItem>
             ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
-}
+
+
+*/

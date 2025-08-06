@@ -2,8 +2,10 @@ import { create } from "zustand";
 import * as THREE from "three";
 import type { ColorGroup } from "@/components/ColorGroup";
 import type { RefObject } from "react";
+import type { FileDetails } from "@/utils/parseDST";
 
-interface EmbroideryState {
+export interface EmbroideryState {
+  file_details: FileDetails | null;
   colorGroup: ColorGroup[] | null;
   geometries: THREE.Line[] | null;
   geometryRef: RefObject<THREE.BufferGeometry | null> | null;
@@ -13,6 +15,7 @@ interface EmbroideryState {
 }
 
 export const useEmbroideryStore = create<EmbroideryState>((set) => ({
+  file_details: null,
   colorGroup: null,
   geometries: null,
   geometryRef: null,

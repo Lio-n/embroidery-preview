@@ -15,10 +15,11 @@ import {
 import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
-import { EmbroideryViewerFiber } from "./components/EmbroideryViewer";
+import { EmbroideryViewer } from "./components/EmbroideryViewer";
+
+// https://edutechwiki.unige.ch/en/Embroidery_format_DST
 
 function App() {
-  return <EmbroideryViewerFiber></EmbroideryViewerFiber>;
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -42,16 +43,21 @@ function App() {
             </Breadcrumb>
           </div>
 
-          <ModeToggle />
+          <div className="pr-3">
+            <ModeToggle />
+          </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
+        <div>
+          <EmbroideryViewer></EmbroideryViewer>
+        </div>
+        {/* <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="bg-muted/50 aspect-video rounded-xl" />
             <div className="bg-muted/50 aspect-video rounded-xl" />
             <div className="bg-muted/50 aspect-video rounded-xl" />
           </div>
           <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
-        </div>
+        </div> */}
       </SidebarInset>
     </SidebarProvider>
   );

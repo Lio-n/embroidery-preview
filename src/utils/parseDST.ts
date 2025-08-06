@@ -6,9 +6,19 @@ import { decodeHeader } from "./docodeHeader";
 import { parseColor } from "./parseColor";
 import * as THREE from "three";
 
+export type FileDetails = {
+  name: string;
+  color_changes: number;
+  stitches: string;
+  width: number;
+  height: number;
+  jumps: number;
+  size: number;
+};
 type PromiseParseDST = {
   geometries: THREE.BufferGeometry[];
   colorGroup: ColorGroup[];
+  file_details: FileDetails;
 };
 
 type StitchBlock = {
@@ -26,6 +36,10 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
   let index = 0,
     cx = 0,
     cy = 0;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
 
   const blocks: StitchBlock[] = [];
   let currentBlock: StitchBlock = { vertices: [], colors: [] };
@@ -40,6 +54,16 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
     color: [currentColor.r, currentColor.g, currentColor.b],
   };
 
+  const file_details: FileDetails = {
+    name: file.name,
+    color_changes: +header.CO + 1,
+    stitches: header.ST,
+    width: 0, // Diameter is not provided in the header, can be calculated if needed
+    height: 0, // Diameter is not provided in the header, can be calculated if needed
+    jumps: 0, // Jumps are not counted in the original header, but can be calculated
+    size: file.size / 1024, // Size in KB
+  };
+
   for (let i = 512; i < dataView.byteLength; i += 3) {
     if (i >= dataView.byteLength - 3) break;
 
@@ -51,8 +75,16 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
     if (byte1 === 0x00 && byte2 === 0x00 && byte3 === 0xf3) break;
 
     const { x, y, color_stop, jump } = decodeCoord(byte3, byte2, byte1);
+    file_details.jumps += jump ? 1 : 0;
     cx += x;
     cy += y;
+
+    if (!jump) {
+      minX = Math.min(minX, cx);
+      minY = Math.min(minY, cy);
+      maxX = Math.max(maxX, cx);
+      maxY = Math.max(maxY, cy);
+    }
 
     if (color_stop) {
       currentGroup.count = pointIndex - currentGroup.start;
@@ -88,6 +120,9 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
     pointIndex++;
   }
 
+  file_details.width = (maxX - minX) / 10; // fix, divide by 10 to match the original scale
+  file_details.height = (maxY - minY) / 10; // e.x, 504 to 50.4
+
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
 
@@ -111,7 +146,11 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
     // }
   });
 
-  console.log("VERTICES - COLORS : ", { mergedVertices, mergedColors });
+  console.log("VERTICES - COLORS : ", {
+    mergedVertices,
+    mergedColors,
+    file_details,
+  });
 
   // THREE GEOMETRY : position=vertice - color=colors
   const geometries = blocks.map((b) => processGeometry(b.vertices, b.colors));
@@ -119,6 +158,7 @@ export const parseDST = async (file: File): Promise<PromiseParseDST> => {
   return {
     geometries,
     colorGroup,
+    file_details,
   };
 };
 // The DST file is just a collection of stitch start and end points on a piece of fabric.

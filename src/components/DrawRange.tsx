@@ -5,14 +5,15 @@ import { Slider } from "./ui/slider";
 
 export const DrawRange = () => {
   const embroideryStore = useEmbroideryStore();
-  const [progress, setProgress] = useState(Infinity);
-  const [geometries] = useState<THREE.Line[]>(embroideryStore.geometries || []);
+
+  const [progress, setProgress] = useState(1000000); // Default to a large number to show all initially
+  // const [embroideryStore.geometries] = useState<THREE.Line[]>(embroideryStore.embroideryStore.geometries || []);
 
   useEffect(() => {
-    if (!geometries) return;
+    if (!embroideryStore.geometries) return;
 
     let remaining = progress;
-    geometries.forEach((line) => {
+    embroideryStore.geometries.forEach((line) => {
       const vertexCount = line.geometry.getAttribute("position").count;
       if (remaining > 0) {
         const showCount = Math.min(vertexCount, remaining);
@@ -26,19 +27,23 @@ export const DrawRange = () => {
 
   const maxDrawRange = useMemo(() => {
     return (
-      geometries?.reduce((sum, line) => {
+      embroideryStore.geometries?.reduce((sum, line) => {
         const count = line.geometry.getAttribute("position").count;
         return sum + count;
       }, 0) ?? 1
     );
-  }, [geometries]);
+  }, [embroideryStore.geometries]);
+
+  if (!embroideryStore.geometries) return null;
 
   return (
-    <Slider
-      defaultValue={[Infinity]}
-      max={maxDrawRange}
-      step={10}
-      onValueChange={(e) => setProgress(e[0])}
-    />
+    <>
+      <Slider
+        defaultValue={[Infinity]}
+        max={maxDrawRange}
+        step={10}
+        onValueChange={(e) => setProgress(e[0])}
+      />
+    </>
   );
 };

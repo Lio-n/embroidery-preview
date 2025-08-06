@@ -30,7 +30,5 @@ export const parseColor = (colorCount: number): THREE.Color[] => {
     colorBlue = p.b;
   }
 
-  console.log({ threeColors });
-
   return threeColors;
 };
