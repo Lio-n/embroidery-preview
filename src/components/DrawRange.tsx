@@ -1,4 +1,3 @@
-import * as THREE from "three";
 import { useEffect, useMemo, useState } from "react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { Slider } from "./ui/slider";

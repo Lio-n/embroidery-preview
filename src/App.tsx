@@ -1,12 +1,12 @@
 import "./App.css";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "./components/ui/breadcrumb";
+// import {
+//   Breadcrumb,
+//   BreadcrumbItem,
+//   BreadcrumbLink,
+//   BreadcrumbList,
+//   BreadcrumbPage,
+//   BreadcrumbSeparator,
+// } from "./components/ui/breadcrumb";
 import {
   SidebarInset,
   SidebarProvider,
@@ -15,9 +15,9 @@ import {
 import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
-import { EmbroideryViewer } from "./components/EmbroideryViewer";
 
 // https://edutechwiki.unige.ch/en/Embroidery_format_DST
+const EmbroideryViewer = await import("./components/EmbroideryViewer");
 
 function App() {
   return (
@@ -47,9 +47,7 @@ function App() {
             <ModeToggle />
           </div>
         </header>
-        <div>
-          <EmbroideryViewer></EmbroideryViewer>
-        </div>
+        <div>{EmbroideryViewer && <EmbroideryViewer.EmbroideryViewer />}</div>
         {/* <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="bg-muted/50 aspect-video rounded-xl" />

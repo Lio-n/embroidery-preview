@@ -1,6 +1,12 @@
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { useEffect, useState, type RefObject } from "react";
-import * as THREE from "three";
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  type BufferGeometryEventMap,
+  type NormalBufferAttributes,
+} from "three";
+// import * as THREE from "three"; 702.4k - 174.9k gzipped
 
 export type ColorGroup = {
   index: number; // group _ID
@@ -10,9 +16,9 @@ export type ColorGroup = {
 };
 
 export type ColorRange = {
-  geometryRef: RefObject<THREE.BufferGeometry<
-    THREE.NormalBufferAttributes,
-    THREE.BufferGeometryEventMap
+  geometryRef: RefObject<BufferGeometry<
+    NormalBufferAttributes,
+    BufferGeometryEventMap
   > | null>;
   colorGroup: ColorGroup[];
 };
@@ -45,7 +51,7 @@ export const ColorGroup = () => {
       }
       geometry.geometry.setAttribute(
         "color",
-        new THREE.Float32BufferAttribute(colorArray, 3)
+        new Float32BufferAttribute(colorArray, 3)
       );
       stitchIndex += vertexCount;
     });
@@ -83,7 +89,6 @@ export const ColorGroup = () => {
             updated[idx].color = [r, g, b];
 
             setColorGroups(updated);
-            // applyColors();
           }}
         />
       ))}

@@ -1,11 +1,5 @@
-import { useEffect, useState, type SetStateAction } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileUpIcon } from "lucide-react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
@@ -17,10 +11,7 @@ const validateFile = (file: File | null) => {
     alert("Invalid file name. Please upload a DST file.");
     return;
   }
-  // if (file.size > 50 * 1024) {
-  //   alert("File size exceeds 50KB limit.");
-  //   return;
-  // }
+
   if (file.size > 1024 * 1024) {
     alert("File size exceeds 1MB limit.");
     return;
