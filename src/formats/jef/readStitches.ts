@@ -28,7 +28,7 @@ export const readStitches = async (
     name: file.name.split(".")[0],
     extension: file.name.split(".")[1].toLocaleUpperCase(),
     color_changes: colorCount,
-    date: dateStr.toISOString(),
+    date: dateStr.toLocaleDateString(),
     stitches: 0, // Stitches will be calculated later
     width: 0, // Diameter is not provided in the header, can be calculated if needed
     height: 0, // Diameter is not provided in the header, can be calculated if needed

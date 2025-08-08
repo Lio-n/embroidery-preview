@@ -2,7 +2,7 @@ export type FileDetails = {
   name: string;
   extension: string;
   color_changes: number;
-  date: string;
+  date?: string;
   stitches: number;
   width: number;
   height: number;

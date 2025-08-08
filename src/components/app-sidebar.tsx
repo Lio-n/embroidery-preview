@@ -270,30 +270,37 @@ const MenuFileDetails = ({
           <SidebarMenuSubItem key={"file_name"} className="mb-1">
             Name: <span className="font-semibold">{data?.name || "N/A"}</span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"color_changes"} className="mb-1">
+          <SidebarMenuSubItem key={"file_extension"} className="mb-1">
+            Extension:{" "}
+            <span className="font-semibold">{data?.extension || "N/A"}</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"file_date"} className="mb-1">
+            Date: <span className="font-semibold">{data?.date || "N/A"}</span>
+          </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"file_color"} className="mb-1">
             Color Changes:{" "}
             <span className="font-semibold">
               {data?.color_changes || "N/A"}
             </span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"stitches"} className="mb-1">
+          <SidebarMenuSubItem key={"file_stitches"} className="mb-1">
             Stitches:{" "}
             <span className="font-semibold">{data?.stitches || "N/A"}</span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"jumps"} className="mb-1">
+          <SidebarMenuSubItem key={"file_jumps"} className="mb-1">
             Jumps: <span className="font-semibold">{data?.jumps || "N/A"}</span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"size"} className="mb-1">
+          <SidebarMenuSubItem key={"file_size"} className="mb-1">
             Size:{" "}
             <span className="font-semibold">
               {data?.size.toFixed(2) || "N/A"} kb
             </span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"size"} className="mb-1">
+          <SidebarMenuSubItem key={"file_Width"} className="mb-1">
             Width:{" "}
             <span className="font-semibold">{data?.width || "N/A"} mm</span>
           </SidebarMenuSubItem>
-          <SidebarMenuSubItem key={"size"} className="mb-1">
+          <SidebarMenuSubItem key={"file_height"} className="mb-1">
             Height:{" "}
             <span className="font-semibold">{data?.height || "N/A"} mm</span>
           </SidebarMenuSubItem>
@@ -304,32 +311,3 @@ const MenuFileDetails = ({
     </SidebarMenuItem>
   );
 };
-
-/*
- {data?.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <p className="select-none font-semibold">{item.title}</p>
-                </SidebarMenuButton>
-
-                {item.items?.length ? (
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title} className="mb-4">
-                        <p className="pb-3 text-start select-none text-xs font-medium">
-                          {item.title}
-                        </p>
-                        {subItem.component
-                          ? React.isValidElement(subItem.component)
-                            ? subItem.component
-                            : null
-                          : null}
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
-              </SidebarMenuItem>
-            ))}
-
-
-*/
