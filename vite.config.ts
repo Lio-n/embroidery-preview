@@ -17,6 +17,8 @@ export default defineConfig({
         manualChunks: {
           three: ["three"],
           fiber: ["@react-three/fiber"],
+          react: ["react", "react-dom", "react-reconciler"],
+          ui: ["clsx", "tailwind-merge", "lucide-react"],
         },
       },
     },
