@@ -9,7 +9,7 @@ export const EmbroideryViewer = () => {
   return (
     <>
       <div className="mx-auto my-0 w-[95%] h-[calc(100vh_-_4rem)]">
-        <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+        <Canvas camera={{ position: [0, 0, 10], fov: 35 }}>
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls
@@ -21,6 +21,13 @@ export const EmbroideryViewer = () => {
           {embroideryStore.geometries?.map((geometry, i) => (
             <EmbroideryLine key={i} line={geometry} />
           ))}
+
+          {embroideryStore.geometry && (
+            <EmbroideryLine
+              key={embroideryStore.geometry.uuid}
+              line={embroideryStore.geometry}
+            />
+          )}
         </Canvas>
       </div>
     </>

@@ -1,4 +1,4 @@
-export type Header = {
+export type HeaderDST = {
   "+X": string;
   "+Y": string;
   "-X": string;
@@ -13,7 +13,7 @@ export type Header = {
   ST: string;
 };
 
-export const decodeHeader = (buffer: ArrayBuffer): Header => {
+export const decodeHeader = (buffer: ArrayBuffer): HeaderDST => {
   const header = new TextDecoder("ascii").decode(buffer.slice(0, 512));
   const lines = header.split("\r");
 
@@ -26,5 +26,5 @@ export const decodeHeader = (buffer: ArrayBuffer): Header => {
     info[key.trim()] = value;
   }
 
-  return info as Header;
+  return info as HeaderDST;
 };

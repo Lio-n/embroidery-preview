@@ -16,6 +16,9 @@ import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
 
+// https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
+// https://github.com/frno7/libpes/tree/master/tools
+// https://www.stitchcount.app/viewer
 // https://edutechwiki.unige.ch/en/Embroidery_format_DST
 const EmbroideryViewer = await import("./components/EmbroideryViewer");
 

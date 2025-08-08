@@ -3,22 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileUpIcon } from "lucide-react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
-import { loaderDSTFile } from "@/utils/loaderDSTFile";
-
-const validateFile = (file: File | null) => {
-  if (!file) return;
-  if (!file.name.toLocaleLowerCase().endsWith(".dst")) {
-    alert("Invalid file name. Please upload a DST file.");
-    return;
-  }
-
-  if (file.size > 1024 * 1024) {
-    alert("File size exceeds 1MB limit.");
-    return;
-  }
-
-  return true;
-};
+import { readerJEF } from "@/formats/jef/readerJEF";
+import { validateFile } from "@/helpers/validateUploadFile.helper";
+import { readerDST } from "@/formats/dst/readerDST";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -37,15 +24,34 @@ export const UploadFile = () => {
     e.preventDefault();
 
     if (!file) return;
-    loaderDSTFile(file).then((data) => {
-      embroideryStore.updateSource({
-        geometries: data.lines,
-        colorGroup: data.colorGroup,
-        file_details: data.file_details,
-      });
+    const extension = file.name.toLowerCase().split(".").pop();
 
-      setFile(null);
-    });
+    switch (extension) {
+      case "jef":
+        readerJEF(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+          setFile(null);
+        });
+        break;
+      case "dst":
+        readerDST(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+
+          setFile(null);
+        });
+        break;
+      default:
+        alert("Unsupported file format. Please upload a JEF or DST file.");
+        return;
+    }
   };
 
   return (
@@ -57,7 +63,7 @@ export const UploadFile = () => {
         </CardDescription>
       </CardHeader> */}
       <CardContent className="px-2">
-        <form onSubmit={handleSubmit} className="grid gap-2">
+        <form onSubmit={handleSubmit} className="grid gap-2 select-none">
           {file && (
             <div className="flex items-center justify-between">
               <div>
@@ -84,11 +90,11 @@ export const UploadFile = () => {
                   and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  DST (MAX. SIZE 1MB)
+                  DST JEF (MAX. SIZE 1MB)
                 </p>
               </div>
               <input
-                accept=".dst"
+                accept=".jef,.JEF,.dst,.DST"
                 id="dropzone-file"
                 type="file"
                 className="hidden"

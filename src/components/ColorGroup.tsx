@@ -36,8 +36,8 @@ export const ColorGroup = () => {
     let groupIdx = 0;
     let group = colorGroups[groupIdx];
 
-    embroideryStore.geometries.forEach((geometry) => {
-      const vertexCount = geometry.geometry.getAttribute("position").count;
+    embroideryStore.geometries.forEach((data) => {
+      const vertexCount = data.geometry.getAttribute("position").count;
       // while the group exists and the stitch index is greater than the start + count of the group
       while (group && stitchIndex >= group.start + group.count) {
         groupIdx++;
@@ -49,7 +49,7 @@ export const ColorGroup = () => {
       for (let i = 0; i < vertexCount; i++) {
         colorArray.push(r, g, b);
       }
-      geometry.geometry.setAttribute(
+      data.geometry.setAttribute(
         "color",
         new Float32BufferAttribute(colorArray, 3)
       );
@@ -67,10 +67,10 @@ export const ColorGroup = () => {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {colorGroups.map((group, idx) => (
+      {colorGroups.map((group, i) => (
         <input
           className="size-6 rounded-full border-none cursor-pointer"
-          key={idx}
+          key={i}
           type="color"
           value={`#${group.color
             .map((c) =>
@@ -86,7 +86,7 @@ export const ColorGroup = () => {
             const b = parseInt(hex.slice(5, 7), 16) / 255;
 
             const updated = [...colorGroups];
-            updated[idx].color = [r, g, b];
+            updated[i].color = [r, g, b];
 
             setColorGroups(updated);
           }}

@@ -1,7 +1,6 @@
 import { Color, Vector3 } from "three";
 
-// Fix this, color numbers should use numbers between 0-255
-export const parseColor = (colorCount: number): Color[] => {
+export const generatePalette = (colorCount: number): Color[] => {
   const vector0 = new Vector3();
   const threeColors: Color[] = [];
   const palette = [];
