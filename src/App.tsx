@@ -15,6 +15,10 @@ import {
 import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
+import { useEmbroideryStore } from "./stores/embroiderySource.store";
+import { useIsMobile } from "./hooks/use-mobile";
+import { ColorGroup } from "./components/ColorGroup";
+import { DrawRange } from "./components/DrawRange";
 
 // https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
 // https://github.com/frno7/libpes/tree/master/tools
@@ -23,6 +27,9 @@ import { ModeToggle } from "./components/mode-toggle";
 const EmbroideryViewer = await import("./components/EmbroideryViewer");
 
 function App() {
+  const embroideryStore = useEmbroideryStore();
+  const isMobile = useIsMobile();
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -50,7 +57,20 @@ function App() {
             <ModeToggle />
           </div>
         </header>
-        <div>{EmbroideryViewer && <EmbroideryViewer.EmbroideryViewer />}</div>
+        <div>
+          {isMobile &&
+            embroideryStore.colorGroup?.length &&
+            embroideryStore.geometries?.length && (
+              <div className="p-6 grid place-items-center gap-4 sticky top-0 bg-[var(--background)] z-[1]">
+                <DrawRange />
+                <ColorGroup />
+              </div>
+            )}
+
+          {EmbroideryViewer && embroideryStore.geometries?.length && (
+            <EmbroideryViewer.EmbroideryViewer />
+          )}
+        </div>
         {/* <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="bg-muted/50 aspect-video rounded-xl" />

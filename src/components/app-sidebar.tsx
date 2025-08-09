@@ -21,6 +21,7 @@ import {
   type EmbroideryState,
 } from "@/stores/embroiderySource.store";
 import { UploadFile } from "./uploadFile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 /*
 // This is sample data
@@ -183,6 +184,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isFileLoaded = embroideryStore.geometries
     ? embroideryStore.geometries.length > 0
     : false;
+  const isMobile = useIsMobile();
 
   return (
     <Sidebar {...props}>
@@ -207,7 +209,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="pr-4">
         <SidebarGroup className="flex justify-between h-full gap-8">
           <SidebarMenu>
-            <MenuControls isFileLoaded={isFileLoaded} />
+            {!isMobile && <MenuControls isFileLoaded={isFileLoaded} />}
             <MenuFileDetails
               isFileLoaded={isFileLoaded}
               data={embroideryStore.file_details}
@@ -233,14 +235,14 @@ const MenuControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
         <SidebarMenuSub>
           <SidebarMenuSubItem key={"DrawnRange"} className="mb-4">
             <p className="pb-3 text-start select-none text-sm font-medium">
-              DrawnRange
+              Drawn Range
             </p>
             <DrawRange />
           </SidebarMenuSubItem>
 
           <SidebarMenuSubItem key={"ColorGroup"} className="mb-4">
             <p className="pb-3 text-start select-none text-sm font-medium">
-              ColorGroup
+              Color Group
             </p>
             <ColorGroup />
           </SidebarMenuSubItem>
