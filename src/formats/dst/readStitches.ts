@@ -41,8 +41,8 @@ export const readStitches = async (
   };
 
   const file_details: FileDetails = {
-    name: file.name.split(".")[0],
-    extension: file.name.split(".")[1].toLocaleUpperCase(),
+    name: file.name.substring(0, file.name.lastIndexOf(".")),
+    extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: +header.CO + 1,
     stitches: parseInt(header?.ST),
     width: 0, // Diameter is not provided in the header, can be calculated if needed
@@ -116,21 +116,6 @@ export const readStitches = async (
   if (currentBlock.vertices.length > 0) {
     blocks.push(currentBlock);
   }
-
-  const mergedVertices: number[] = [];
-  const mergedColors: number[] = [];
-
-  // unify blocks
-  blocks.forEach((b) => {
-    mergedVertices.push(...b.vertices);
-    mergedColors.push(...b.colors);
-  });
-
-  console.log("VERTICES - COLORS : ", {
-    mergedVertices,
-    mergedColors,
-    file_details,
-  });
 
   return {
     blocks,

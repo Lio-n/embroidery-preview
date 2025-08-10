@@ -1,6 +1,6 @@
 export const validateFile = (file: File | null) => {
   if (!file) return;
-  const allowedExtensions = [".jef", ".dst"];
+  const allowedExtensions = [".jef", ".dst", ".exp"];
   const extension = file.name.toLowerCase().split(".").pop();
 
   if (!allowedExtensions.includes(`.${extension}`)) {

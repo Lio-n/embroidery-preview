@@ -25,8 +25,8 @@ export const readStitches = async (
     maxY = -Infinity;
 
   const file_details: FileDetails = {
-    name: file.name.split(".")[0],
-    extension: file.name.split(".")[1].toLocaleUpperCase(),
+    name: file.name.substring(0, file.name.lastIndexOf(".")),
+    extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: colorCount,
     date: dateStr.toLocaleDateString(),
     stitches: 0, // Stitches will be calculated later
