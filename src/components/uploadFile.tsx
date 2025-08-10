@@ -61,7 +61,7 @@ export const UploadFile = () => {
         });
         break;
       default:
-        alert("Unsupported file format. Please upload a JEF or DST file.");
+        alert("Unsupported file format. Please upload a JEF, DST or EXP file.");
         return;
     }
   };
@@ -101,7 +101,7 @@ export const UploadFile = () => {
                   <span className="font-semibold">Click to upload</span>
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  DST JEF (MAX. SIZE 1MB)
+                  DST JEF EXP (MAX. SIZE 1MB)
                 </p>
               </div>
               <input

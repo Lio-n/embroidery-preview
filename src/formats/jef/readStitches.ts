@@ -1,5 +1,6 @@
 import { parseDatetime } from "@/helpers/parseDatetime.helper";
 import { blobToData } from "@/helpers/processBuffer.helper";
+import { signed8 } from "@/helpers/readBit.helper";
 import type {
   ColorGroup,
   FileDetails,
@@ -80,71 +81,73 @@ export const readStitches = async (
     | TRIM         | 0x80 | 0x02 |
     */
 
-    // Normal stitch
-    const dx = b1 & 0x80 ? b1 - 0x100 : b1;
-    const dy = b2 & 0x80 ? b2 - 0x100 : b2;
-
     minX = Math.min(minX, cx);
     minY = Math.min(minY, cy);
     maxX = Math.max(maxX, cx);
     maxY = Math.max(maxY, cy);
 
-    if (b1 === 0x80) {
-      if (b2 === 0x10) {
-        // END
-        currentBlock.vertices.push(0, 0, 0);
-        break;
-      }
-      if (b2 === 0x01) {
-        // COLOR CHANGE
+    // Normal Stitch
+    if (b1 !== 0x80) {
+      const dx = signed8(b1);
+      const dy = signed8(b2);
+      cx += dx;
+      cy += dy;
 
-        currentGroup.count = pointIndex - currentGroup.start;
-        colorGroup.push(currentGroup);
+      currentBlock.vertices.push(cx, cy, 0);
+      currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
 
-        if (currentBlock.vertices.length > 0) {
-          blocks.push(currentBlock);
-          currentBlock = { vertices: [], colors: [] };
-        }
-
-        index++;
-        currentColor = threeColors[index % threeColors.length];
-
-        // new color group
-        currentGroup = {
-          index,
-          start: pointIndex,
-          count: 0,
-          color: [currentColor.r, currentColor.g, currentColor.b],
-        };
-        continue;
-      }
-      if (b2 === 0x02) {
-        // TRIM/JUMP
-        file_details.jumps += 1; // Count jumps
-
-        if (currentBlock.vertices.length > 0) {
-          blocks.push(currentBlock);
-          currentBlock = { vertices: [], colors: [] };
-        }
-        continue; // Skip jump stitches
-      }
+      pointIndex++;
+      continue;
     }
 
-    cx += dx;
-    cy += dy;
+    const isEnd = b2 === 0x10; // This could be b1 === 0x80 && b2 === 0x10;
+    if (isEnd) {
+      // END
+      currentBlock.vertices.push(0, 0, 0);
+      break;
+    }
 
-    currentBlock.vertices.push(cx, cy, 0); // Z-coordinate is 0 as embroidery designs are 2D
-    currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
+    const isColorChange = b2 === 0x01; // This could be b1 === 0x80 && b2 === 0x01;
+    if (isColorChange) {
+      currentGroup.count = pointIndex - currentGroup.start;
+      colorGroup.push(currentGroup);
 
-    pointIndex++;
+      if (currentBlock.vertices.length > 0) {
+        blocks.push(currentBlock);
+        currentBlock = { vertices: [], colors: [] };
+      }
+
+      index++;
+      currentColor = threeColors[index % threeColors.length];
+
+      // new color group
+      currentGroup = {
+        index,
+        start: pointIndex,
+        count: 0,
+        color: [currentColor.r, currentColor.g, currentColor.b],
+      };
+      continue;
+    }
+
+    const isJump = b2 === 0x02; // This could be b1 === 0x80 && b2 === 0x02;
+    if (isJump) {
+      file_details.jumps += 1;
+
+      if (currentBlock.vertices.length > 0) {
+        blocks.push(currentBlock);
+        currentBlock = { vertices: [], colors: [] };
+      }
+      continue; // Skip jump stitches
+    }
   }
 
   file_details.stitches = pointIndex; // Total stitches parsed
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
 
-  file_details.width = (maxX - minX) / 10; // fix, divide by 10 to match the original scale
-  file_details.height = (maxY - minY) / 10; // e.x, 504 to 50.4
+  file_details.width = (maxX - minX) / 10;
+  file_details.height = (maxY - minY) / 10;
 
   // If there are any remaining vertices in the current block, push it to blocks
   if (currentBlock.vertices.length > 0) {

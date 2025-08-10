@@ -104,6 +104,8 @@ export const readStitches = async (
     const ey = view.getUint8(ptr++);
     const dx = signed8(ex);
     const dy = signed8(ey);
+    cx += dx;
+    cy += dy;
 
     const isJump = b2 === 0x04; // This could be b1 === 0x80 && b2 === 0x04;
     // const isTrim = b2 === 0x05; // This could be b1
@@ -113,12 +115,9 @@ export const readStitches = async (
         blocks.push(currentBlock);
         currentBlock = { vertices: [], colors: [] };
       }
-      cx += dx;
-      cy += dy;
       continue;
     } else {
-      cx += dx;
-      cy += dy;
+      // TRIM
       currentBlock.vertices.push(cx, cy, 0);
       currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
       pointIndex++;
@@ -135,8 +134,8 @@ export const readStitches = async (
 
   file_details.color_changes = colorGroup.length;
   file_details.stitches = pointIndex;
-  file_details.width = (maxX - minX) / 10; // fix, divide by 10 to match the original scale
-  file_details.height = (maxY - minY) / 10; // e.x, 504 to 50.4
+  file_details.width = (maxX - minX) / 10;
+  file_details.height = (maxY - minY) / 10;
 
   return {
     blocks,
