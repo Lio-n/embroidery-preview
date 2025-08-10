@@ -41,8 +41,8 @@ export const readStitches = async (
   };
 
   const file_details: FileDetails = {
-    name: file.name.split(".")[0],
-    extension: file.name.split(".")[1].toLocaleUpperCase(),
+    name: file.name.substring(0, file.name.lastIndexOf(".")),
+    extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: +header.CO + 1,
     stitches: parseInt(header?.ST),
     width: 0, // Diameter is not provided in the header, can be calculated if needed
@@ -54,26 +54,30 @@ export const readStitches = async (
   for (let i = 512; i < dataView.byteLength; i += 3) {
     if (i >= dataView.byteLength - 3) break;
 
-    const byte1 = dataView.getUint8(i);
-    const byte2 = dataView.getUint8(i + 1);
-    const byte3 = dataView.getUint8(i + 2);
+    const b1 = dataView.getUint8(i);
+    const b2 = dataView.getUint8(i + 1);
+    const b3 = dataView.getUint8(i + 2);
 
+    const isEnd = b1 === 0x00 && b2 === 0x00 && b3 === 0xf3;
     // Check for end of file sequence
-    if (byte1 === 0x00 && byte2 === 0x00 && byte3 === 0xf3) break;
+    if (isEnd) break;
 
-    const { x, y, color_stop, jump } = decodeCoord(byte3, byte2, byte1);
-    file_details.jumps += jump ? 1 : 0;
+    const {
+      x,
+      y,
+      color_stop: isColorChange,
+      jump: isJump,
+    } = decodeCoord(b3, b2, b1);
+    file_details.jumps += isJump ? 1 : 0;
     cx += x;
     cy += y;
 
-    if (!jump) {
-      minX = Math.min(minX, cx);
-      minY = Math.min(minY, cy);
-      maxX = Math.max(maxX, cx);
-      maxY = Math.max(maxY, cy);
-    }
+    minX = Math.min(minX, cx);
+    minY = Math.min(minY, cy);
+    maxX = Math.max(maxX, cx);
+    maxY = Math.max(maxY, cy);
 
-    if (color_stop) {
+    if (isColorChange) {
       currentGroup.count = pointIndex - currentGroup.start;
       colorGroup.push(currentGroup);
 
@@ -94,7 +98,7 @@ export const readStitches = async (
       };
     }
 
-    if (jump) {
+    if (isJump) {
       if (currentBlock.vertices.length > 0) {
         blocks.push(currentBlock);
         currentBlock = { vertices: [], colors: [] };
@@ -107,8 +111,8 @@ export const readStitches = async (
     pointIndex++;
   }
 
-  file_details.width = (maxX - minX) / 10; // fix, divide by 10 to match the original scale
-  file_details.height = (maxY - minY) / 10; // e.x, 504 to 50.4
+  file_details.width = (maxX - minX) / 10;
+  file_details.height = (maxY - minY) / 10;
 
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
@@ -116,21 +120,6 @@ export const readStitches = async (
   if (currentBlock.vertices.length > 0) {
     blocks.push(currentBlock);
   }
-
-  const mergedVertices: number[] = [];
-  const mergedColors: number[] = [];
-
-  // unify blocks
-  blocks.forEach((b) => {
-    mergedVertices.push(...b.vertices);
-    mergedColors.push(...b.colors);
-  });
-
-  console.log("VERTICES - COLORS : ", {
-    mergedVertices,
-    mergedColors,
-    file_details,
-  });
 
   return {
     blocks,

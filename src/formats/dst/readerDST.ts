@@ -9,8 +9,7 @@ import { readStitches } from "./readStitches";
 export const readerDST = async (file: File) => {
   const { blocks, colorGroup, file_details } = await readStitches(file);
 
-  console.log("Parsed DST file:", { file_details, colorGroup, blocks });
-
+  console.log({ blocks, colorGroup, file_details });
   const geometries = blocks.map((b) => processGeometry(b.vertices, b.colors));
 
   const material = new LineBasicMaterial({ vertexColors: true });

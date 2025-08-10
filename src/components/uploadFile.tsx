@@ -6,6 +6,7 @@ import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { readerJEF } from "@/formats/jef/readerJEF";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
 import { readerDST } from "@/formats/dst/readerDST";
+import { readerEXP } from "@/formats/exp/readerEXP";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -27,6 +28,17 @@ export const UploadFile = () => {
     const extension = file.name.toLowerCase().split(".").pop();
 
     switch (extension) {
+      case "exp":
+        readerEXP(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+        });
+
+        setFile(null);
+        break;
       case "jef":
         readerJEF(file).then((data) => {
           embroideryStore.updateSource({
@@ -49,7 +61,7 @@ export const UploadFile = () => {
         });
         break;
       default:
-        alert("Unsupported file format. Please upload a JEF or DST file.");
+        alert("Unsupported file format. Please upload a JEF, DST or EXP file.");
         return;
     }
   };
@@ -89,11 +101,11 @@ export const UploadFile = () => {
                   <span className="font-semibold">Click to upload</span>
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  DST JEF (MAX. SIZE 1MB)
+                  DST JEF EXP (MAX. SIZE 1MB)
                 </p>
               </div>
               <input
-                accept=".jef,.JEF,.dst,.DST"
+                accept=".jef,.JEF,.dst,.DST,.exp,.EXP"
                 id="dropzone-file"
                 type="file"
                 className="hidden"
