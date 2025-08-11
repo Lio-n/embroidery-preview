@@ -101,7 +101,11 @@ export const readStitches = async (
     }
 
     const isEnd = b2 === 0x10; // This could be b1 === 0x80 && b2 === 0x10;
-    if (isEnd) continue;
+    if (isEnd) {
+      // END
+      currentBlock.vertices.push(0, 0, 0);
+      break;
+    }
 
     const isColorChange = b2 === 0x01; // This could be b1 === 0x80 && b2 === 0x01;
     if (isColorChange) {
