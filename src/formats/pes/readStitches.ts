@@ -1,5 +1,4 @@
 import { blobToData } from "@/helpers/processBuffer.helper";
-// import { signed7, signed8 } from "@/helpers/readBit.helper";
 import type {
   ColorGroup,
   FileDetails,
@@ -18,11 +17,12 @@ const MAP_BYTE = {
       HEIGHT: PEC_HEADER_SIZE + 10, // s16 in the doc says, 12 but is 10
       "0x01E0": PEC_HEADER_SIZE + 12,
       "0x01B0": PEC_HEADER_SIZE + 14,
+      "pec-stitch-list-subsection": PEC_HEADER_SIZE + 20,
     },
   },
 };
 
-// Uso, WIDTH_BYTE_LOC = PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.SECOND_SECTION.WIDTH;
+// Usage, WIDTH_BYTE_LOC = PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.SECOND_SECTION.WIDTH;
 
 const JUMP_CODE = 0x10;
 const TRIM_CODE = 0x20;
@@ -34,15 +34,6 @@ export const readStitches = async (
   const buffer = await blobToData(file);
   const view = new DataView(buffer);
   const PEC_BYTE_OFFSET = view.getUint32(8, true);
-
-  const BYTE_TEST_LOC =
-    PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.SECOND_SECTION.HEIGHT;
-
-  const BYTE_TEST = view
-    .getUint16(BYTE_TEST_LOC + 10, true)
-    .toString(16)
-    .padStart(2, "0");
-  console.log({ BYTE_TEST });
 
   const file_details: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
@@ -58,22 +49,7 @@ export const readStitches = async (
 
   const blocks: StitchBlock[] = [];
 
-  const start = PEC_BYTE_OFFSET + 512 + 2;
-
-  console.log(view.getUint16(start + 12, true));
-
-  const firstBytes = [];
-  for (let i = 0; i < 40; i++) {
-    firstBytes.push(
-      view
-        .getUint8(start + i)
-        .toString(16)
-        .padStart(2, "0")
-    );
-  }
-
-  console.log(firstBytes.join(" "));
-  const threeColors = generatePalette(1);
+  const threeColors = generatePalette(10);
   let currentColor = threeColors[0];
 
   let currentBlock: StitchBlock = { vertices: [], colors: [] };
@@ -92,16 +68,17 @@ export const readStitches = async (
     cy = 0,
     x = 0,
     y = 0;
-  let ptr = PEC_BYTE_OFFSET + 512 + 20;
+  let ptr =
+    PEC_BYTE_OFFSET +
+    MAP_BYTE.PEC_HEADER.SECOND_SECTION["pec-stitch-list-subsection"];
   while (ptr < buffer.byteLength) {
     let trim = false,
       jump = false;
 
     const b1 = view.getUint8(ptr++);
-    const b2 = view.getUint8(ptr++);
+    let b2 = view.getUint8(ptr++);
 
     if ((b1 === 0xff && b2 === 0x00) || b2 === undefined) {
-      console.log("END : ", b1, b2);
       break;
     }
 
@@ -135,11 +112,17 @@ export const readStitches = async (
       if (b1 & JUMP_CODE) jump = true;
       if (b1 & TRIM_CODE) trim = true;
 
-      const b2x = view.getUint8(ptr++);
-      if (b2x === undefined) break;
-      x = signed12((b1 << 8) | b2x);
+      // const b2x = view.getUint8(ptr++);
+      // if (b2x === undefined) break;
+      // x = signed12((b1 << 8) | b2x);
+      const code = (b1 << 8) | b2;
+      x = (code << 20) >> 20;
+
+      b2 = view.getUint8(ptr++);
+      if (b2 === -1) break;
     } else {
-      x = signed7(b1);
+      // x = signed7(b1);
+      x = (b1 << 25) >> 25;
     }
 
     // Y
@@ -147,14 +130,24 @@ export const readStitches = async (
       if (b2 & JUMP_CODE) jump = true;
       if (b2 & TRIM_CODE) trim = true;
 
-      const b3 = view.getUint8(ptr++);
-      if (b3 === undefined) break;
-      y = -signed12((b2 << 8) | b3);
+      // const b3 = view.getUint8(ptr++);
+      // if (b3 === undefined) break;
+      // y = -signed12((b2 << 8) | b3);
+
+      const val3 = view.getUint8(ptr++);
+      if (val3 === -1) break;
+
+      const code = (b2 << 8) | val3;
+      y = -(code << 20) >> 20;
     } else {
-      y = -signed7(b2);
+      // y = -signed7(b2);
+      y = -(b2 << 25) >> 25;
     }
 
     if (jump || trim) {
+      cx += x;
+      cy += y;
+      // currentBlock.vertices.push(cx, cy, 0);
       if (currentBlock.vertices.length > 0) {
         blocks.push(currentBlock);
         currentBlock = { vertices: [], colors: [] };
@@ -164,6 +157,7 @@ export const readStitches = async (
       cy += y;
       currentBlock.vertices.push(cx, cy, 0);
       currentBlock.colors.push(currentColor.r, currentColor.g, currentColor.b);
+
       pointIndex++;
     }
   }
@@ -181,21 +175,3 @@ export const readStitches = async (
     file_details,
   };
 };
-
-function signed12(b: number): number {
-  b &= 0xfff;
-  if (b > 0x7ff) return -0x1000 + b;
-  return b;
-}
-function signed7(b: number): number {
-  if (b > 63) return -128 + (b & 0x7f);
-  return b;
-}
-
-// const b1x = b1 & 0x0f; // parte baja
-// const b2x = view.getUint8(ptr++);
-// x = -signed12((b1x << 8) | b2x);
-
-// const b2y = b2 & 0x0f;
-// const b3y = view.getUint8(ptr++);
-// y = -signed12((b2y << 8) | b3y);
