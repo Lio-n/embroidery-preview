@@ -7,6 +7,8 @@ import { readerJEF } from "@/formats/jef/readerJEF";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
 import { readerDST } from "@/formats/dst/readerDST";
 import { readerEXP } from "@/formats/exp/readerEXP";
+import { readerPES } from "@/formats/pes/readerPES";
+import { readerXXX } from "@/formats/xxx/readerXXX";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +30,28 @@ export const UploadFile = () => {
     const extension = file.name.toLowerCase().split(".").pop();
 
     switch (extension) {
+      case "pes":
+        readerPES(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+        });
+
+        setFile(null);
+        break;
+      case "xxx":
+        readerXXX(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+        });
+
+        setFile(null);
+        break;
       case "exp":
         readerEXP(file).then((data) => {
           embroideryStore.updateSource({
