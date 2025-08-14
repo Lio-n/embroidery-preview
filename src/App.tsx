@@ -20,6 +20,7 @@ import { useIsMobile } from "./hooks/use-mobile";
 import { ColorGroup } from "./components/ColorGroup";
 import { DrawRange } from "./components/DrawRange";
 
+// https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
 // https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
 // https://github.com/frno7/libpes/tree/master/tools
 // https://www.stitchcount.app/viewer

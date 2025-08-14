@@ -103,7 +103,7 @@ export const readStitches = async (
     const isEnd = b2 === 0x10; // This could be b1 === 0x80 && b2 === 0x10;
     if (isEnd) {
       // END
-      currentBlock.vertices.push(0, 0, 0);
+      //  currentBlock.vertices.push(0, 0, 0);
       break;
     }
 
@@ -133,6 +133,11 @@ export const readStitches = async (
     const isJump = b2 === 0x02; // This could be b1 === 0x80 && b2 === 0x02;
     if (isJump) {
       file_details.jumps += 1;
+
+      const dx = signed8(view.getUint8(ptr++));
+      const dy = signed8(view.getUint8(ptr++));
+      cx += dx;
+      cy += dy;
 
       if (currentBlock.vertices.length > 0) {
         blocks.push(currentBlock);
