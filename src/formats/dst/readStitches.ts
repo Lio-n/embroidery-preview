@@ -1,20 +1,14 @@
-import type { ColorGroup, FileDetails } from "@/types/embroidery.types";
+import type {
+  ColorGroup,
+  FileDetails,
+  PromiseReadStitches,
+  StitchBlock,
+} from "@/types/embroidery.types";
 import { decodeCoord } from "./decodeCoord";
 import { decodeHeader } from "./docodeHeader";
 import { blobToData } from "@/helpers/processBuffer.helper";
 import { generatePalette } from "@/utils/generatePalette";
 import { MAP_BYTE } from "./constants";
-
-type StitchBlock = {
-  vertices: Float32Array<ArrayBuffer>;
-  colors: Uint8Array<ArrayBuffer>;
-};
-
-type PromiseReadStitches = {
-  blocks: StitchBlock[];
-  colorGroup: ColorGroup[];
-  file_details: FileDetails;
-};
 
 export const readStitches = async (
   file: File

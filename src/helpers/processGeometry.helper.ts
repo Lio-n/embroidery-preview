@@ -5,15 +5,12 @@ import {
 } from "three";
 
 export const processGeometry = (
-  vertices: unknown,
-  colors: unknown
+  vertices: Float32Array<ArrayBuffer>,
+  colors: Uint8Array<ArrayBuffer>
 ): BufferGeometry => {
   const geometry = new BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new Float32BufferAttribute(vertices as [], 3)
-  );
-  geometry.setAttribute("color", new Uint8BufferAttribute(colors as [], 3));
+  geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute("color", new Uint8BufferAttribute(colors, 3));
 
   return geometry;
 };

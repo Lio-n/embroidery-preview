@@ -17,9 +17,10 @@ export type ColorGroup = {
   color: [number, number, number]; // RGB
 };
 export type StitchBlock = {
-  vertices: number[];
-  colors: number[];
+  vertices: Float32Array<ArrayBuffer>;
+  colors: Uint8Array<ArrayBuffer>;
 };
+
 export type PromiseReadStitches = {
   blocks: StitchBlock[];
   colorGroup: ColorGroup[];

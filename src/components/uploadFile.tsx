@@ -8,7 +8,7 @@ import { readerPES } from "@/formats/pes/readerPES";
 import { readerXXX } from "@/formats/xxx/readerXXX";
 import { readerJEF } from "@/formats/jef/readerJEF";
 import { readerDST } from "@/formats/dst/readerDST";
-// import { readerEXP } from "@/formats/exp/readerEXP";
+import { readerEXP } from "@/formats/exp/readerEXP";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -62,7 +62,6 @@ export const UploadFile = () => {
           setFile(null);
         });
         break;
-      /*
       case "exp":
         readerEXP(file).then((data) => {
           embroideryStore.updateSource({
@@ -74,7 +73,6 @@ export const UploadFile = () => {
 
         setFile(null);
         break;
-      */
       case "dst":
         readerDST(file).then((data) => {
           embroideryStore.updateSource({
