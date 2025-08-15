@@ -6,7 +6,7 @@ import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
 import { readerPES } from "@/formats/pes/readerPES";
 import { readerXXX } from "@/formats/xxx/readerXXX";
-// import { readerJEF } from "@/formats/jef/readerJEF";
+import { readerJEF } from "@/formats/jef/readerJEF";
 // import { readerDST } from "@/formats/dst/readerDST";
 // import { readerEXP } from "@/formats/exp/readerEXP";
 
@@ -51,17 +51,6 @@ export const UploadFile = () => {
         });
 
         setFile(null);
-        break; /*
-      case "exp":
-        readerEXP(file).then((data) => {
-          embroideryStore.updateSource({
-            geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
-          });
-        });
-
-        setFile(null);
         break;
       case "jef":
         readerJEF(file).then((data) => {
@@ -73,6 +62,19 @@ export const UploadFile = () => {
           setFile(null);
         });
         break;
+      /*
+      case "exp":
+        readerEXP(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+        });
+
+        setFile(null);
+        break;
+      
       case "dst":
         readerDST(file).then((data) => {
           embroideryStore.updateSource({
