@@ -7,7 +7,7 @@ import { validateFile } from "@/helpers/validateUploadFile.helper";
 import { readerPES } from "@/formats/pes/readerPES";
 import { readerXXX } from "@/formats/xxx/readerXXX";
 import { readerJEF } from "@/formats/jef/readerJEF";
-// import { readerDST } from "@/formats/dst/readerDST";
+import { readerDST } from "@/formats/dst/readerDST";
 // import { readerEXP } from "@/formats/exp/readerEXP";
 
 export const UploadFile = () => {
@@ -74,7 +74,7 @@ export const UploadFile = () => {
 
         setFile(null);
         break;
-      
+      */
       case "dst":
         readerDST(file).then((data) => {
           embroideryStore.updateSource({
@@ -85,7 +85,7 @@ export const UploadFile = () => {
 
           setFile(null);
         });
-        break;*/
+        break;
       default:
         alert("Unsupported file format. Please upload a JEF, DST or EXP file.");
         return;
