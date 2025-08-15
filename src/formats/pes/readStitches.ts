@@ -39,7 +39,7 @@ export const readStitches = async (
     version: decoder.decode(buffer.slice(0, 8)),
   };
 
-  const blocks = [];
+  const blocks: StitchBlock[] = [];
 
   const threeColors = generatePalette(colorCount);
   let currentColor = threeColors[0];

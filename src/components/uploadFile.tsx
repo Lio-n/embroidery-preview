@@ -3,12 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileUpIcon } from "lucide-react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
-import { readerJEF } from "@/formats/jef/readerJEF";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
-import { readerDST } from "@/formats/dst/readerDST";
-import { readerEXP } from "@/formats/exp/readerEXP";
 import { readerPES } from "@/formats/pes/readerPES";
 import { readerXXX } from "@/formats/xxx/readerXXX";
+// import { readerJEF } from "@/formats/jef/readerJEF";
+// import { readerDST } from "@/formats/dst/readerDST";
+// import { readerEXP } from "@/formats/exp/readerEXP";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -51,7 +51,7 @@ export const UploadFile = () => {
         });
 
         setFile(null);
-        break;
+        break; /*
       case "exp":
         readerEXP(file).then((data) => {
           embroideryStore.updateSource({
@@ -83,7 +83,7 @@ export const UploadFile = () => {
 
           setFile(null);
         });
-        break;
+        break;*/
       default:
         alert("Unsupported file format. Please upload a JEF, DST or EXP file.");
         return;
@@ -129,7 +129,7 @@ export const UploadFile = () => {
                 </p>
               </div>
               <input
-                accept=".jef,.JEF,.dst,.DST,.exp,.EXP,.pes,.PES"
+                accept=".jef,.JEF,.dst,.DST,.exp,.EXP,.pes,.PES,.xxx,.XXX"
                 id="dropzone-file"
                 type="file"
                 className="hidden"
