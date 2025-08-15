@@ -1,10 +1,9 @@
 import { processGeometry } from "@/helpers/processGeometry.helper";
 import { LineBasicMaterial } from "three";
 import { processLine } from "@/helpers/processLines.helper";
-
 import { readStitches } from "./readStitches";
 
-// https://edutechwiki.unige.ch/en/Embroidery_format_JEF
+// https://edutechwiki.unige.ch/en/Embroidery_format_PES
 export const readerPES = async (file: File) => {
   const { blocks, colorGroup, file_details } = await readStitches(file);
 

@@ -276,6 +276,10 @@ const MenuFileDetails = ({
             Extension:{" "}
             <span className="font-semibold">{data?.extension || "N/A"}</span>
           </SidebarMenuSubItem>
+          <SidebarMenuSubItem key={"file_version"} className="mb-1">
+            Version:{" "}
+            <span className="font-semibold">{data?.version || "N/A"}</span>
+          </SidebarMenuSubItem>
           <SidebarMenuSubItem key={"file_date"} className="mb-1">
             Date: <span className="font-semibold">{data?.date || "N/A"}</span>
           </SidebarMenuSubItem>
