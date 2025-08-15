@@ -7,6 +7,7 @@ import { readerJEF } from "@/formats/jef/readerJEF";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
 import { readerDST } from "@/formats/dst/readerDST";
 import { readerEXP } from "@/formats/exp/readerEXP";
+import { readerPES } from "@/formats/pes/readerPES";
 import { readerXXX } from "@/formats/xxx/readerXXX";
 
 export const UploadFile = () => {
@@ -29,6 +30,17 @@ export const UploadFile = () => {
     const extension = file.name.toLowerCase().split(".").pop();
 
     switch (extension) {
+      case "pes":
+        readerPES(file).then((data) => {
+          embroideryStore.updateSource({
+            geometries: data.lines,
+            colorGroup: data.colorGroup,
+            file_details: data.file_details,
+          });
+        });
+
+        setFile(null);
+        break;
       case "xxx":
         readerXXX(file).then((data) => {
           embroideryStore.updateSource({
@@ -113,11 +125,11 @@ export const UploadFile = () => {
                   <span className="font-semibold">Click to upload</span>
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  DST JEF EXP XXX (MAX. SIZE 1MB)
+                  DST JEF EXP XXX PES (MAX. SIZE 1MB)
                 </p>
               </div>
               <input
-                accept=".jef,.JEF,.dst,.DST,.exp,.EXP,.xxx,.XXX"
+                accept=".jef,.JEF,.dst,.DST,.exp,.EXP,.pes,.PES"
                 id="dropzone-file"
                 type="file"
                 className="hidden"

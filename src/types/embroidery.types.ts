@@ -8,6 +8,7 @@ export type FileDetails = {
   height: number;
   jumps: number;
   size: number;
+  version?: string;
 };
 export type ColorGroup = {
   index: number;
