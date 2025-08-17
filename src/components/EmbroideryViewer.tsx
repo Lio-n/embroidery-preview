@@ -2,9 +2,20 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { EmbroideryLine } from "./EmbroideryLine";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
+import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
+import { useEffect, useRef } from "react";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 export const EmbroideryViewer = () => {
   const embroideryStore = useEmbroideryStore();
+  const embroideryViewer = useEmbroideryViewer();
+  const orbitControlsRef = useRef<OrbitControlsImpl>(null!);
+
+  useEffect(() => {
+    if (orbitControlsRef) {
+      embroideryViewer.save({ orbitControlsRef: orbitControlsRef });
+    }
+  }, [orbitControlsRef]);
 
   return (
     <>
@@ -13,6 +24,7 @@ export const EmbroideryViewer = () => {
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls
+            ref={orbitControlsRef}
             enableDamping
             dampingFactor={0.05}
             minDistance={1}
