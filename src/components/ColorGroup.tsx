@@ -69,7 +69,7 @@ export const ColorGroup = () => {
     <div className="flex flex-wrap gap-2">
       {colorGroups.map((group, i) => (
         <input
-          className="size-6 rounded-full border-none cursor-pointer"
+          className="size-6 rounded-sm border-none cursor-pointer"
           key={i}
           type="color"
           value={`#${group.color

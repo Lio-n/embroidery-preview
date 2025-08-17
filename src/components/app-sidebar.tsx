@@ -1,5 +1,5 @@
-import * as React from "react";
-import { VolleyballIcon } from "lucide-react";
+import { ScanEye, VolleyballIcon } from "lucide-react";
+import type { ComponentProps } from "react";
 
 import {
   Sidebar,
@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  // SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
@@ -18,10 +17,12 @@ import { DrawRange } from "./DrawRange";
 import { ColorGroup } from "./ColorGroup";
 import {
   useEmbroideryStore,
-  type EmbroideryState,
+  type EmbroideryStoreState,
 } from "@/stores/embroiderySource.store";
 import { UploadFile } from "./uploadFile";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "./ui/button";
+import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 
 /*
 // This is sample data
@@ -179,10 +180,11 @@ const data = {
 }
 */
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const embroideryStore = useEmbroideryStore();
-  const isFileLoaded = embroideryStore.geometries
-    ? embroideryStore.geometries.length > 0
+export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
+  const EmbStore = useEmbroideryStore();
+
+  const isFileLoaded = EmbStore.geometries
+    ? EmbStore.geometries.length > 0
     : false;
   const isMobile = useIsMobile();
 
@@ -212,7 +214,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {!isMobile && <MenuControls isFileLoaded={isFileLoaded} />}
             <MenuFileDetails
               isFileLoaded={isFileLoaded}
-              data={embroideryStore.file_details}
+              data={EmbStore.file_details}
             />
           </SidebarMenu>
 
@@ -225,6 +227,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 
 const MenuControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
+  const EmbViewer = useEmbroideryViewer();
+
   return (
     <SidebarMenuItem key={"Controls"}>
       <SidebarMenuButton asChild>
@@ -246,6 +250,23 @@ const MenuControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             </p>
             <ColorGroup />
           </SidebarMenuSubItem>
+
+          <SidebarMenuSubItem
+            key={"ViewControlReset"}
+            className="mb-4 self-baseline"
+          >
+            <p className="pb-3 text-start select-none text-sm font-medium">
+              Scene
+            </p>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={EmbViewer.resetControl}
+            >
+              <ScanEye /> Center
+            </Button>
+          </SidebarMenuSubItem>
         </SidebarMenuSub>
       ) : (
         <p className="italic select-none text-xs">No file loaded</p>
@@ -259,7 +280,7 @@ const MenuFileDetails = ({
   data,
 }: {
   isFileLoaded: boolean;
-  data: EmbroideryState["file_details"];
+  data: EmbroideryStoreState["file_details"];
 }) => {
   return (
     <SidebarMenuItem key="File Details">
@@ -291,7 +312,9 @@ const MenuFileDetails = ({
           </SidebarMenuSubItem>
           <SidebarMenuSubItem key={"file_stitches"} className="mb-1">
             Stitches:{" "}
-            <span className="font-semibold">{data?.stitches || "N/A"}</span>
+            <span className="font-semibold">
+              {data?.stitches.toLocaleString() || "N/A"}
+            </span>
           </SidebarMenuSubItem>
           <SidebarMenuSubItem key={"file_jumps"} className="mb-1">
             Jumps: <span className="font-semibold">{data?.jumps || "N/A"}</span>
