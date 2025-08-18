@@ -5,9 +5,8 @@ import { processLine } from "@/helpers/processLines.helper";
 
 // https://edutechwiki.unige.ch/en/Embroidery_format_JEF
 export const readerJEF = async (file: File) => {
-  const { blocks, colorGroup, file_details } = await readStitches(file);
+  const { blocks, ...r } = await readStitches(file);
 
-  console.log({ blocks, colorGroup, file_details });
   const geometries = blocks.map((b) => processGeometry(b.vertices, b.colors));
 
   const material = new LineBasicMaterial({ vertexColors: true });
@@ -15,5 +14,5 @@ export const readerJEF = async (file: File) => {
   // Transform geometries to THREE.Line objects
   const lines = geometries.map((geometry) => processLine(geometry, material));
 
-  return { lines, colorGroup, file_details };
+  return { lines, ...r };
 };

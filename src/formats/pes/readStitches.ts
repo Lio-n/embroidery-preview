@@ -21,7 +21,7 @@ export const readStitches = async (
     PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.FIRST_SECTION.COLOR_COUNT;
   const colorCount = uint8List[colorOffset] + 1;
 
-  const file_details: FileDetails = {
+  const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: colorCount,
@@ -139,7 +139,7 @@ export const readStitches = async (
     }
 
     if (jump || trim) {
-      file_details.jumps += 1;
+      filesDetails.jumps += 1;
 
       cx += x;
       cy += y;
@@ -179,10 +179,12 @@ export const readStitches = async (
     }
   }
 
-  file_details.stitches = pointIndex;
+  filesDetails.stitches = pointIndex;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
 
-  file_details.width = (maxX - minX) / 10;
-  file_details.height = (maxY - minY) / 10;
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
@@ -200,6 +202,12 @@ export const readStitches = async (
   return {
     blocks,
     colorGroup,
-    file_details,
+    filesDetails,
+    designMetrics: {
+      boundingBox: {
+        center: [(minX + maxX) / 2, (minY + maxY) / 2],
+        maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+      },
+    },
   };
 };

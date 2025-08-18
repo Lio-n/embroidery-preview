@@ -21,8 +21,16 @@ export type StitchBlock = {
   colors: Uint8Array<ArrayBuffer>;
 };
 
+export type DesignMetrics = {
+  boundingBox: {
+    center: [number, number]; // [x,y]
+    maxDimension: number;
+  };
+};
+
 export type PromiseReadStitches = {
   blocks: StitchBlock[];
   colorGroup: ColorGroup[];
-  file_details: FileDetails;
+  filesDetails: FileDetails;
+  designMetrics: DesignMetrics;
 };

@@ -34,8 +34,7 @@ export const UploadFile = () => {
         readerPES(file).then((data) => {
           embroideryStore.updateSource({
             geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
+            ...data,
           });
         });
 
@@ -45,8 +44,7 @@ export const UploadFile = () => {
         readerXXX(file).then((data) => {
           embroideryStore.updateSource({
             geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
+            ...data,
           });
         });
 
@@ -56,8 +54,7 @@ export const UploadFile = () => {
         readerJEF(file).then((data) => {
           embroideryStore.updateSource({
             geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
+            ...data,
           });
           setFile(null);
         });
@@ -66,8 +63,7 @@ export const UploadFile = () => {
         readerEXP(file).then((data) => {
           embroideryStore.updateSource({
             geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
+            ...data,
           });
         });
 
@@ -77,8 +73,7 @@ export const UploadFile = () => {
         readerDST(file).then((data) => {
           embroideryStore.updateSource({
             geometries: data.lines,
-            colorGroup: data.colorGroup,
-            file_details: data.file_details,
+            ...data,
           });
 
           setFile(null);

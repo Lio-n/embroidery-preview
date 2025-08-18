@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { Bounds, OrbitControls } from "@react-three/drei";
 import { EmbroideryLine } from "./EmbroideryLine";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
@@ -10,36 +10,40 @@ export const EmbroideryViewer = () => {
   const embroideryStore = useEmbroideryStore();
   const embroideryViewer = useEmbroideryViewer();
   const orbitControlsRef = useRef<OrbitControlsImpl>(null!);
+  const canvasRef = useRef<HTMLCanvasElement>(null!);
 
   useEffect(() => {
     if (orbitControlsRef) {
-      embroideryViewer.save({ orbitControlsRef: orbitControlsRef });
+      embroideryViewer.save({ orbitControlsRef, canvasRef });
     }
-  }, [orbitControlsRef]);
+  }, [orbitControlsRef, canvasRef]);
 
   return (
     <>
       <div className="mx-auto my-0 w-[95%] h-[calc(100vh_-_4rem)]">
-        <Canvas camera={{ position: [0, 0, 10], fov: 35 }}>
+        <Canvas
+          ref={canvasRef}
+          gl={{ preserveDrawingBuffer: true, alpha: true }}
+          camera={{ position: [0, 0, 20], fov: 40 }}
+        >
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls
+            enableRotate
             ref={orbitControlsRef}
-            enableDamping
-            dampingFactor={0.05}
-            minDistance={1}
-            maxDistance={50}
+            makeDefault
+            maxDistance={
+              embroideryStore.designMetrics?.boundingBox.maxDimension
+                ? embroideryStore.designMetrics?.boundingBox.maxDimension * 1.5
+                : 20
+            }
           />
-          {embroideryStore.geometries?.map((geometry, i) => (
-            <EmbroideryLine key={i} line={geometry} />
-          ))}
 
-          {embroideryStore.geometry && (
-            <EmbroideryLine
-              key={embroideryStore.geometry.uuid}
-              line={embroideryStore.geometry}
-            />
-          )}
+          <Bounds fit clip margin={0.9}>
+            {embroideryStore.geometries?.map((geometry, i) => (
+              <EmbroideryLine key={i} line={geometry} />
+            ))}
+          </Bounds>
         </Canvas>
       </div>
     </>

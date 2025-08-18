@@ -1,4 +1,4 @@
-import { ScanEye, VolleyballIcon } from "lucide-react";
+import { ImageDown, ScanEye, VolleyballIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import {
@@ -23,162 +23,6 @@ import { UploadFile } from "./uploadFile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "./ui/button";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
-
-/*
-// This is sample data
-const data = {
-  navMain: [
-    {
-      title: "Controls",
-      items: [
-        {
-          title: "DrawRange",
-          url: "#",
-        },
-        {
-          title: "Pallete",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Community",
-      url: "#",
-      items: [
-        {
-          title: "Contribution Guide",
-          url: "#",
-        },
-      ],
-    },
-  ],
-}
-*/
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const EmbStore = useEmbroideryStore();
@@ -212,10 +56,13 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="flex justify-between h-full gap-8">
           <SidebarMenu>
             {!isMobile && <MenuControls isFileLoaded={isFileLoaded} />}
+
             <MenuFileDetails
               isFileLoaded={isFileLoaded}
-              data={EmbStore.file_details}
+              data={EmbStore.filesDetails}
             />
+
+            <MenuExports isFileLoaded={isFileLoaded} />
           </SidebarMenu>
 
           <UploadFile />
@@ -262,7 +109,7 @@ const MenuControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={EmbViewer.resetControl}
+              onClick={EmbViewer.resetCameraView}
             >
               <ScanEye /> Center
             </Button>
@@ -280,7 +127,7 @@ const MenuFileDetails = ({
   data,
 }: {
   isFileLoaded: boolean;
-  data: EmbroideryStoreState["file_details"];
+  data: EmbroideryStoreState["filesDetails"];
 }) => {
   return (
     <SidebarMenuItem key="File Details">
@@ -332,6 +179,37 @@ const MenuFileDetails = ({
           <SidebarMenuSubItem key={"file_height"} className="mb-1">
             Height:{" "}
             <span className="font-semibold">{data?.height || "N/A"} mm</span>
+          </SidebarMenuSubItem>
+        </SidebarMenuSub>
+      ) : (
+        <p className="italic select-none text-xs">No file loaded</p>
+      )}
+    </SidebarMenuItem>
+  );
+};
+
+const MenuExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
+  const EmbViewer = useEmbroideryViewer();
+
+  return (
+    <SidebarMenuItem key="Exports">
+      <SidebarMenuButton asChild>
+        <p className="select-none font-semibold">Exports</p>
+      </SidebarMenuButton>
+
+      {isFileLoaded ? (
+        <SidebarMenuSub className="text-xs text-left">
+          <SidebarMenuSubItem
+            key={"ViewControlReset"}
+            className="mb-4 self-baseline"
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={EmbViewer.downloadScreenshot}
+            >
+              <ImageDown /> Download JPG
+            </Button>
           </SidebarMenuSubItem>
         </SidebarMenuSub>
       ) : (

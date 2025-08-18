@@ -15,7 +15,7 @@ export const readStitches = async (
   const buffer = await blobToData(file);
   const uint8List = new Uint8Array(buffer);
 
-  const file_details: FileDetails = {
+  const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: 0,
@@ -169,14 +169,22 @@ export const readStitches = async (
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
 
-  file_details.color_changes = colorGroup.length;
-  file_details.stitches = pointIndex;
-  file_details.width = (maxX - minX) / 10;
-  file_details.height = (maxY - minY) / 10;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
+  filesDetails.color_changes = colorGroup.length;
+  filesDetails.stitches = pointIndex;
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   return {
     blocks,
     colorGroup,
-    file_details,
+    filesDetails,
+    designMetrics: {
+      boundingBox: {
+        center: [(minX + maxX) / 2, (minY + maxY) / 2],
+        maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+      },
+    },
   };
 };

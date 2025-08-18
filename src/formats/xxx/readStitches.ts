@@ -29,7 +29,7 @@ export const readStitches = async (
     x = 0,
     y = 0;
 
-  const file_details: FileDetails = {
+  const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: colorCount,
@@ -128,7 +128,7 @@ export const readStitches = async (
         cIndex = 0;
       }
 
-      file_details.jumps += 1;
+      filesDetails.jumps += 1;
       continue;
     }
 
@@ -170,9 +170,12 @@ export const readStitches = async (
     pointIndex++;
   }
 
-  file_details.stitches = pointIndex;
-  file_details.width = (maxX - minX) / 10;
-  file_details.height = (maxY - minY) / 10;
+  filesDetails.stitches = pointIndex;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
+
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   if (vIndex > 0) {
     const finalVertices = vertices.subarray(0, vIndex);
@@ -184,5 +187,15 @@ export const readStitches = async (
     });
   }
 
-  return { blocks, colorGroup, file_details };
+  return {
+    blocks,
+    colorGroup,
+    filesDetails,
+    designMetrics: {
+      boundingBox: {
+        center: [(minX + maxX) / 2, (minY + maxY) / 2],
+        maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+      },
+    },
+  };
 };

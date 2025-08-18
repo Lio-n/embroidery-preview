@@ -46,7 +46,7 @@ export const readStitches = async (
     color: [currentColor.r, currentColor.g, currentColor.b],
   };
 
-  const file_details: FileDetails = {
+  const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: +header.CO + 1,
@@ -74,7 +74,7 @@ export const readStitches = async (
       color_stop: isColorChange,
       jump: isJump,
     } = decodeCoord(b3, b2, b1);
-    file_details.jumps += isJump ? 1 : 0;
+    filesDetails.jumps += isJump ? 1 : 0;
     cx += x;
     cy += y;
 
@@ -141,8 +141,11 @@ export const readStitches = async (
     pointIndex++;
   }
 
-  file_details.width = (maxX - minX) / 10;
-  file_details.height = (maxY - minY) / 10;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
+
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
@@ -160,6 +163,12 @@ export const readStitches = async (
   return {
     blocks,
     colorGroup,
-    file_details,
+    filesDetails,
+    designMetrics: {
+      boundingBox: {
+        center: [(minX + maxX) / 2, (minY + maxY) / 2],
+        maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+      },
+    },
   };
 };

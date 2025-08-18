@@ -19,7 +19,7 @@ import { useEmbroideryStore } from "./stores/embroiderySource.store";
 import { useIsMobile } from "./hooks/use-mobile";
 import { ColorGroup } from "./components/ColorGroup";
 import { DrawRange } from "./components/DrawRange";
-
+// https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
 // https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
 // https://github.com/frno7/libpes/tree/master/tools

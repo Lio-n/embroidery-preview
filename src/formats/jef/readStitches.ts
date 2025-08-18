@@ -31,7 +31,7 @@ export const readStitches = async (
   let cx = 0,
     cy = 0;
 
-  const file_details: FileDetails = {
+  const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
     color_changes: colorCount,
@@ -131,7 +131,7 @@ export const readStitches = async (
     }
 
     if (b2 === JUMP_CODE) {
-      file_details.jumps += 1;
+      filesDetails.jumps += 1;
 
       const dx = signed8(view.getUint8(ptr++));
       const dy = signed8(view.getUint8(ptr++));
@@ -156,12 +156,15 @@ export const readStitches = async (
     }
   }
 
-  file_details.stitches = pointIndex;
+  filesDetails.stitches = pointIndex;
   currentGroup.count = pointIndex - currentGroup.start;
   colorGroup.push(currentGroup);
 
-  file_details.width = (maxX - minX) / 10;
-  file_details.height = (maxY - minY) / 10;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
+
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   if (vIndex > 0) {
     const finalVertices = vertices.subarray(0, vIndex);
@@ -176,6 +179,12 @@ export const readStitches = async (
   return {
     blocks,
     colorGroup,
-    file_details,
+    filesDetails,
+    designMetrics: {
+      boundingBox: {
+        center: [(minX + maxX) / 2, (minY + maxY) / 2],
+        maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+      },
+    },
   };
 };

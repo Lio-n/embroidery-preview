@@ -1,11 +1,16 @@
 import { create } from "zustand";
 import type { BufferGeometry, Line } from "three";
-import type { ColorGroup } from "@/components/ColorGroup";
 import type { RefObject } from "react";
-import type { FileDetails } from "@/types/embroidery.types";
+import type {
+  ColorGroup,
+  DesignMetrics,
+  FileDetails,
+} from "@/types/embroidery.types";
 
 export type EmbroideryStoreState = {
-  file_details: FileDetails | null;
+  designMetrics: DesignMetrics | null;
+  filesDetails: FileDetails | null;
+
   colorGroup: ColorGroup[] | null;
   geometries: Line[] | null;
   geometry: Line | null;
@@ -13,18 +18,20 @@ export type EmbroideryStoreState = {
 };
 
 export type EmbroideryStoreActions = {
-  updateSource: (data: Partial<EmbroideryStoreState>) => Promise<void>;
+  updateSource: (data: Partial<EmbroideryStoreState>) => void;
 };
 
 export type EmbroideryStore = EmbroideryStoreState & EmbroideryStoreActions;
 
 export const useEmbroideryStore = create<EmbroideryStore>((set) => ({
-  file_details: null,
+  designMetrics: null,
+  filesDetails: null,
+  size: null,
   colorGroup: null,
   geometries: null,
   geometry: null,
   geometryRef: null,
-  updateSource: async (data) => {
+  updateSource: (data) => {
     try {
       set(data);
     } catch (error) {
