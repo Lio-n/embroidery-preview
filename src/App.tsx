@@ -18,13 +18,16 @@ import { ModeToggle } from "./components/mode-toggle";
 import { useEmbroideryStore } from "./stores/embroiderySource.store";
 import { useIsMobile } from "./hooks/use-mobile";
 import { ColorGroup } from "./components/ColorGroup";
-import { DrawRange } from "./components/DrawRange";
+import { StitchRange } from "./components/StitchRange";
+
 // https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
 // https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
 // https://github.com/frno7/libpes/tree/master/tools
 // https://www.stitchcount.app/viewer
 // https://edutechwiki.unige.ch/en/Embroidery_format_DST
+// https://emdigitizer.com/embroidery-viewer/
+
 const EmbroideryViewer = await import("./components/EmbroideryViewer");
 
 function App() {
@@ -63,7 +66,7 @@ function App() {
             embroideryStore.colorGroup?.length &&
             embroideryStore.geometries?.length && (
               <div className="p-6 grid place-items-center gap-4 sticky top-0 bg-[var(--background)] z-[1]">
-                <DrawRange />
+                <StitchRange />
                 <ColorGroup />
               </div>
             )}

@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { Slider } from "./ui/slider";
 
-export const DrawRange = () => {
+export const StitchRange = () => {
   const embroideryStore = useEmbroideryStore();
 
   const [progress, setProgress] = useState(1000000); // Default to a large number to show all initially
-  // const [embroideryStore.geometries] = useState<THREE.Line[]>(embroideryStore.embroideryStore.geometries || []);
 
   useEffect(() => {
     if (!embroideryStore.geometries) return;
