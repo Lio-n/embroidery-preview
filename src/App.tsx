@@ -16,9 +16,9 @@ import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
 import { useEmbroideryStore } from "./stores/embroiderySource.store";
-import { useIsMobile } from "./hooks/use-mobile";
-import { ColorGroup } from "./components/ColorGroup";
-import { StitchRange } from "./components/StitchRange";
+// import { useIsMobile } from "./hooks/use-mobile";
+// import { ColorGroup } from "./components/ColorGroup";
+// import { StitchRange } from "./components/StitchRange";
 
 // https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
@@ -32,7 +32,7 @@ const EmbroideryViewer = await import("./components/EmbroideryViewer");
 
 function App() {
   const embroideryStore = useEmbroideryStore();
-  const isMobile = useIsMobile();
+  // const isMobile = useIsMobile();
 
   return (
     <SidebarProvider>
@@ -62,14 +62,14 @@ function App() {
           </div>
         </header>
         <div>
-          {isMobile &&
+          {/* {isMobile &&
             embroideryStore.colorGroup?.length &&
             embroideryStore.geometries?.length && (
               <div className="p-6 grid place-items-center gap-4 sticky top-0 bg-[var(--background)] z-[1]">
                 <StitchRange />
                 <ColorGroup />
               </div>
-            )}
+            )} */}
 
           {EmbroideryViewer && embroideryStore.geometries?.length && (
             <EmbroideryViewer.EmbroideryViewer />
