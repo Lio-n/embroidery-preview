@@ -17,8 +17,6 @@ import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
 import { useEmbroideryStore } from "./stores/embroiderySource.store";
 // import { useIsMobile } from "./hooks/use-mobile";
-// import { ColorGroup } from "./components/ColorGroup";
-// import { StitchRange } from "./components/StitchRange";
 
 // https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout

@@ -26,7 +26,29 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     ? EmbStore.geometries.length > 0
     : false;
   // const isMobile = useIsMobile();
-
+  /*
+  $ Controls
+	# Design
+		- Stitch Range
+		- Color Group
+	# Scene
+		- Center
+		- Background
+$ File Details
+	- Name
+    	- Extension
+    	- Version
+    	- Date
+    	- Color Changes
+    	- Stitches
+    	- Jumps
+    	- Size
+    	- Width
+    	- Height
+$ Exports
+	# Download JPG -> Open POPUP (format opcions)
+	# Conversion -> Open POPUP (to other formats)
+  */
   return (
     <Sidebar {...props}>
       <SidebarHeader>

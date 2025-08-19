@@ -26,7 +26,7 @@ export const NavFileDetails = ({
       <Collapsible
         key="File_Details"
         asChild
-        defaultOpen={false}
+        defaultOpen={true}
         className="group/collapsible"
       >
         <SidebarMenuItem>
@@ -38,7 +38,7 @@ export const NavFileDetails = ({
             </SidebarMenuButton>
           </CollapsibleTrigger>
 
-          {isFileLoaded && (
+          {isFileLoaded ? (
             <CollapsibleContent>
               <SidebarMenuSub className="text-xs text-left">
                 <SidebarMenuSubItem key={"file_name"} className="mb-1">
@@ -97,6 +97,8 @@ export const NavFileDetails = ({
                 </SidebarMenuSubItem>
               </SidebarMenuSub>
             </CollapsibleContent>
+          ) : (
+            <p className="italic select-none text-xs">No file loaded</p>
           )}
         </SidebarMenuItem>
       </Collapsible>

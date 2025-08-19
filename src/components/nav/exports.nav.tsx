@@ -1,4 +1,4 @@
-import { ChevronRight, Download, ImageDown } from "lucide-react";
+import { ChevronRight, Download, ImageDown, RefreshCcwDot } from "lucide-react";
 
 import {
   Collapsible,
@@ -22,7 +22,7 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
       <Collapsible
         key="Exports"
         asChild
-        defaultOpen={false}
+        defaultOpen={true}
         className="group/collapsible"
       >
         <SidebarMenuItem>
@@ -34,13 +34,10 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             </SidebarMenuButton>
           </CollapsibleTrigger>
 
-          {isFileLoaded && (
-            <CollapsibleContent>
+          {isFileLoaded ? (
+            <CollapsibleContent className="mb-4">
               <SidebarMenuSub className="pt-2 text-xs text-left">
-                <SidebarMenuSubItem
-                  key={"ViewControlReset"}
-                  className="mb-4 self-baseline"
-                >
+                <SidebarMenuSubItem key={"ExportsDownload"} className="mb-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -49,8 +46,16 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
                     <ImageDown /> Download JPG
                   </Button>
                 </SidebarMenuSubItem>
+
+                <SidebarMenuSubItem key={"ExportsConversion"}>
+                  <Button variant="outline" size="sm" disabled>
+                    <RefreshCcwDot /> Conversion
+                  </Button>
+                </SidebarMenuSubItem>
               </SidebarMenuSub>
             </CollapsibleContent>
+          ) : (
+            <p className="italic select-none text-xs">No file loaded</p>
           )}
         </SidebarMenuItem>
       </Collapsible>

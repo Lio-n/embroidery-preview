@@ -5,7 +5,7 @@ import { Slider } from "./ui/slider";
 export const StitchRange = () => {
   const embroideryStore = useEmbroideryStore();
 
-  const [progress, setProgress] = useState(1000000); // Default to a large number to show all initially
+  const [progress, setProgress] = useState(Infinity); // Default to a large number to show all initially
 
   useEffect(() => {
     if (!embroideryStore.geometries) return;
@@ -37,7 +37,7 @@ export const StitchRange = () => {
   return (
     <>
       <Slider
-        defaultValue={[Infinity]}
+        defaultValue={[progress]}
         max={maxDrawRange}
         step={10}
         onValueChange={(e) => setProgress(e[0])}

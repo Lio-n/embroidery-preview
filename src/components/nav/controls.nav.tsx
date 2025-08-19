@@ -1,4 +1,4 @@
-import { ChevronRight, Cog, ScanEye } from "lucide-react";
+import { ChevronRight, Cog, MountainSnow, ScanEye } from "lucide-react";
 
 import {
   Collapsible,
@@ -16,16 +16,19 @@ import { ColorGroup } from "../ColorGroup";
 import { Button } from "../ui/button";
 import { StitchRange } from "../StitchRange";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
+import { useState } from "react";
 
 export const NavControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
   const EmbViewer = useEmbroideryViewer();
+  const [isOpen, setOpen] = useState(true);
 
   return (
     <SidebarMenu>
       <Collapsible
         key="Controls"
         asChild
-        defaultOpen={true}
+        onOpenChange={setOpen}
+        defaultOpen={isOpen}
         className="group/collapsible"
       >
         <SidebarMenuItem>
@@ -38,49 +41,54 @@ export const NavControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
           </CollapsibleTrigger>
 
           {isFileLoaded ? (
-            <CollapsibleContent>
-              <SidebarMenuSub>
-                <SidebarMenuItem key="Exports_Design">
-                  <SidebarMenuSubItem>
-                    <p className="text-start pb-3 select-none text-xs font-semibold">
-                      Design
-                    </p>
-                  </SidebarMenuSubItem>
+            <CollapsibleContent
+              forceMount
+              className={isOpen ? "block" : "hidden"}
+            >
+              <SidebarMenuSub key="Exports_Design">
+                <SidebarMenuSubItem>
+                  <p className="text-start pb-3 select-none text-xs font-semibold">
+                    Design
+                  </p>
+                </SidebarMenuSubItem>
 
-                  <SidebarMenuSubItem key={"StitchRange"} className="mb-4">
-                    <p className="pb-3 text-start select-none text-xs font-medium">
-                      Stitch Range
-                    </p>
-                    <StitchRange />
-                  </SidebarMenuSubItem>
+                <SidebarMenuSubItem key={"StitchRange"} className="mb-4">
+                  <p className="pb-3 text-start select-none text-xs font-medium">
+                    Stitch Range
+                  </p>
+                  <StitchRange />
+                </SidebarMenuSubItem>
 
-                  <SidebarMenuSubItem key={"ColorGroup"} className="mb-4">
-                    <p className="pb-3 text-start select-none text-xs font-medium">
-                      Color Group
-                    </p>
-                    <ColorGroup />
-                  </SidebarMenuSubItem>
-                </SidebarMenuItem>
+                <SidebarMenuSubItem key={"ColorGroup"} className="mb-4">
+                  <p className="pb-3 text-start select-none text-xs font-medium">
+                    Color Group
+                  </p>
+                  <ColorGroup />
+                </SidebarMenuSubItem>
               </SidebarMenuSub>
 
-              <SidebarMenuSub>
-                <SidebarMenuItem key="Exports_Scene">
-                  <SidebarMenuSubItem>
-                    <p className="text-start pb-3 select-none text-xs font-semibold">
-                      Scene
-                    </p>
-                  </SidebarMenuSubItem>
+              <SidebarMenuSub key="Exports_Scene">
+                <SidebarMenuSubItem>
+                  <p className="text-start pb-3 select-none text-xs font-semibold">
+                    Scene
+                  </p>
+                </SidebarMenuSubItem>
 
-                  <SidebarMenuSubItem className="text-xs text-left">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={EmbViewer.resetCameraView}
-                    >
-                      <ScanEye /> Center
-                    </Button>
-                  </SidebarMenuSubItem>
-                </SidebarMenuItem>
+                <SidebarMenuSubItem className="mb-2 text-xs text-left">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={EmbViewer.resetCameraView}
+                  >
+                    <ScanEye /> Center
+                  </Button>
+                </SidebarMenuSubItem>
+
+                <SidebarMenuSubItem className="text-xs text-left">
+                  <Button variant="outline" size="sm" disabled>
+                    <MountainSnow /> Background
+                  </Button>
+                </SidebarMenuSubItem>
               </SidebarMenuSub>
             </CollapsibleContent>
           ) : (
