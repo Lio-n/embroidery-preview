@@ -1,4 +1,4 @@
-import { ChevronRight, Cog, MountainSnow, ScanEye } from "lucide-react";
+import { ChevronRight, Cog, ScanEye } from "lucide-react";
 
 import {
   Collapsible,
