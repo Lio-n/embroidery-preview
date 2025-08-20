@@ -26,6 +26,12 @@ export const EmbroideryViewer = () => {
           gl={{ preserveDrawingBuffer: true, alpha: true }}
           camera={{ position: [0, 0, 20], fov: 40 }}
         >
+          {embroideryViewer.scene?.backgroundColor && (
+            <color
+              attach="background"
+              args={[embroideryViewer.scene?.backgroundColor]}
+            />
+          )}
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls

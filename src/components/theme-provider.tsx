@@ -1,3 +1,4 @@
+import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
@@ -29,6 +30,7 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
+  const EmbViewer = useEmbroideryViewer();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -45,6 +47,9 @@ export function ThemeProvider({
       return;
     }
 
+    EmbViewer.updateScene({
+      backgroundColor: theme === "dark" ? "#0a0a0a" : "#ffffff",
+    });
     root.classList.add(theme);
   }, [theme]);
 

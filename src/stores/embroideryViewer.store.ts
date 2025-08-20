@@ -3,11 +3,16 @@ import type { OrbitControls } from "three-stdlib";
 import type { RefObject } from "react";
 import type { BoundsApi } from "@react-three/drei";
 
+type SceneOptions = {
+  backgroundColor: string | null;
+};
+
 export type EmbroideryViewerState = {
   orbitControlsRef: RefObject<OrbitControls> | null;
   canvasRef: RefObject<HTMLCanvasElement> | null;
   boundsApi: BoundsApi | null;
   isCapturing: boolean;
+  scene: SceneOptions;
 };
 
 export type ScreenshotOptions = {
@@ -20,15 +25,18 @@ export type ScreenshotOptions = {
 export type EmbroideryViewerActions = {
   resetCameraView: () => void;
   save: (data: Partial<EmbroideryViewerState>) => void;
+  updateScene: (data: Partial<SceneOptions>) => void;
   downloadScreenshot: () => void;
 };
 
 export type EmbroideryViewer = EmbroideryViewerState & EmbroideryViewerActions;
 
 export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
+  scene: { backgroundColor: null },
   orbitControlsRef: null,
   canvasRef: null,
   boundsApi: null,
+  isCapturing: false,
   resetCameraView: () => {
     try {
       set((data) => {
@@ -60,8 +68,6 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
       console.error("Error :", error);
     }
   },
-  isCapturing: false,
-
   downloadScreenshot: async () => {
     const { canvasRef, resetCameraView } = get();
 
@@ -87,6 +93,16 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
       console.error("Error al capturar:", error);
     } finally {
       set({ isCapturing: false });
+    }
+  },
+  updateScene: (data) => {
+    try {
+      const { scene } = get();
+
+      scene.backgroundColor = data.backgroundColor ?? "";
+      set({ scene });
+    } catch (error) {
+      console.error("Error :", error);
     }
   },
 }));

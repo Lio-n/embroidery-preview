@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import { StitchRange } from "../StitchRange";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 import { useState } from "react";
+import { ColorPicker } from "../ColorPicker";
 
 export const NavControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
   const EmbViewer = useEmbroideryViewer();
@@ -85,9 +86,15 @@ export const NavControls = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
                 </SidebarMenuSubItem>
 
                 <SidebarMenuSubItem className="text-xs text-left">
-                  <Button variant="outline" size="sm" disabled>
-                    <MountainSnow /> Background
-                  </Button>
+                  <p className="pb-3 text-start select-none text-xs font-medium">
+                    Background
+                  </p>
+                  <ColorPicker
+                    onChange={(v) =>
+                      EmbViewer.updateScene({ backgroundColor: v as string })
+                    }
+                    value={EmbViewer.scene.backgroundColor as string}
+                  />
                 </SidebarMenuSubItem>
               </SidebarMenuSub>
             </CollapsibleContent>
