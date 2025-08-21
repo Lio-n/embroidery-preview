@@ -6,7 +6,7 @@ import type {
   PromiseReadStitches,
   StitchBlock,
 } from "@/types/embroidery.types";
-import { generatePalette } from "@/utils/generatePalette";
+import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 
 export const readStitches = async (

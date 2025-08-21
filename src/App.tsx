@@ -29,7 +29,7 @@ import { useEmbroideryStore } from "./stores/embroiderySource.store";
 const EmbroideryViewer = await import("./components/EmbroideryViewer");
 
 function App() {
-  const embroideryStore = useEmbroideryStore();
+  const EmbStore = useEmbroideryStore();
   // const isMobile = useIsMobile();
 
   return (
@@ -60,16 +60,7 @@ function App() {
           </div>
         </header>
         <div>
-          {/* {isMobile &&
-            embroideryStore.colorGroup?.length &&
-            embroideryStore.geometries?.length && (
-              <div className="p-6 grid place-items-center gap-4 sticky top-0 bg-[var(--background)] z-[1]">
-                <StitchRange />
-                <ColorGroup />
-              </div>
-            )} */}
-
-          {EmbroideryViewer && embroideryStore.geometries?.length && (
+          {EmbroideryViewer && EmbStore.geometries?.length && (
             <EmbroideryViewer.EmbroideryViewer />
           )}
         </div>

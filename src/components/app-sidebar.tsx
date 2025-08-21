@@ -69,22 +69,6 @@ $ Exports
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* <SidebarContent className="pr-4">
-        <SidebarGroup className="flex justify-between h-full gap-8">
-          <SidebarMenu>
-            {!isMobile && <MenuControls isFileLoaded={isFileLoaded} />}
-
-            <MenuFileDetails
-              isFileLoaded={isFileLoaded}
-              data={EmbStore.filesDetails}
-            />
-
-            <MenuExports isFileLoaded={isFileLoaded} />
-          </SidebarMenu>
-
-          <UploadFile />
-        </SidebarGroup>
-      </SidebarContent> */}
       <SidebarContent className="pr-4">
         <SidebarGroup className="flex justify-between h-full gap-8">
           <SidebarMenu>

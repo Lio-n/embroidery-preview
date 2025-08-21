@@ -1,4 +1,4 @@
-import { ChevronRight, Download, ImageDown, RefreshCcwDot } from "lucide-react";
+import { ChevronRight, Download, RefreshCcwDot } from "lucide-react";
 
 import {
   Collapsible,
@@ -12,11 +12,10 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Button } from "../ui/button";
-import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
+import { Button } from "@/components/ui/button";
+import { DownloadDialog } from "@/components/DownloadDialog";
 
 export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
-  const EmbViewer = useEmbroideryViewer();
   return (
     <SidebarMenu>
       <Collapsible
@@ -38,13 +37,7 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             <CollapsibleContent className="mb-4">
               <SidebarMenuSub className="pt-2 text-xs text-left">
                 <SidebarMenuSubItem key={"ExportsDownload"} className="mb-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={EmbViewer.downloadScreenshot}
-                  >
-                    <ImageDown /> Download JPG
-                  </Button>
+                  <DownloadDialog />
                 </SidebarMenuSubItem>
 
                 <SidebarMenuSubItem key={"ExportsConversion"}>

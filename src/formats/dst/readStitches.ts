@@ -7,7 +7,7 @@ import type {
 import { decodeCoord } from "./decodeCoord";
 import { decodeHeader } from "./docodeHeader";
 import { blobToData } from "@/helpers/processBuffer.helper";
-import { generatePalette } from "@/utils/generatePalette";
+import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 
 export const readStitches = async (

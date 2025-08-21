@@ -7,14 +7,14 @@ import { useEffect, useRef } from "react";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 export const EmbroideryViewer = () => {
-  const embroideryStore = useEmbroideryStore();
-  const embroideryViewer = useEmbroideryViewer();
+  const EmbStore = useEmbroideryStore();
+  const EmbViewer = useEmbroideryViewer();
   const orbitControlsRef = useRef<OrbitControlsImpl>(null!);
   const canvasRef = useRef<HTMLCanvasElement>(null!);
 
   useEffect(() => {
     if (orbitControlsRef) {
-      embroideryViewer.save({ orbitControlsRef, canvasRef });
+      EmbViewer.save({ orbitControlsRef, canvasRef });
     }
   }, [orbitControlsRef, canvasRef]);
 
@@ -26,10 +26,10 @@ export const EmbroideryViewer = () => {
           gl={{ preserveDrawingBuffer: true, alpha: true }}
           camera={{ position: [0, 0, 20], fov: 40 }}
         >
-          {embroideryViewer.scene?.backgroundColor && (
+          {EmbViewer.scene?.backgroundColor && (
             <color
               attach="background"
-              args={[embroideryViewer.scene?.backgroundColor]}
+              args={[EmbViewer.scene?.backgroundColor]}
             />
           )}
           <ambientLight intensity={0.4} />
@@ -39,14 +39,14 @@ export const EmbroideryViewer = () => {
             ref={orbitControlsRef}
             makeDefault
             maxDistance={
-              embroideryStore.designMetrics?.boundingBox.maxDimension
-                ? embroideryStore.designMetrics?.boundingBox.maxDimension * 1.5
+              EmbStore.designMetrics?.boundingBox.maxDimension
+                ? EmbStore.designMetrics?.boundingBox.maxDimension * 1.5
                 : 20
             }
           />
 
           <Bounds fit clip margin={0.9}>
-            {embroideryStore.geometries?.map((geometry, i) => (
+            {EmbStore.geometries?.map((geometry, i) => (
               <EmbroideryLine key={i} line={geometry} />
             ))}
           </Bounds>

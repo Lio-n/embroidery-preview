@@ -18,14 +18,14 @@ export type ColorRange = {
 };
 
 export const ColorGroup = () => {
-  const embroideryStore = useEmbroideryStore();
+  const EmbStore = useEmbroideryStore();
   const [colorGroups, setColorGroups] = useState<TColorGroup[]>([]);
 
   useEffect(() => {
-    if (embroideryStore.colorGroup) {
-      setColorGroups(embroideryStore.colorGroup);
+    if (EmbStore.colorGroup) {
+      setColorGroups(EmbStore.colorGroup);
     }
-  }, [embroideryStore.colorGroup]);
+  }, [EmbStore.colorGroup]);
 
   const colorHexCache = useMemo(() => {
     return colorGroups.map((group) => {
@@ -41,13 +41,13 @@ export const ColorGroup = () => {
   }, [colorGroups]);
 
   const applyColors = useCallback(() => {
-    if (!embroideryStore.geometries || colorGroups.length === 0) return;
+    if (!EmbStore.geometries || colorGroups.length === 0) return;
 
     let stitchIndex = 0;
     let currentGroupIndex = 0;
     let currentGroup = colorGroups[currentGroupIndex];
 
-    const geometries = embroideryStore.geometries;
+    const geometries = EmbStore.geometries;
 
     for (let i = 0; i < geometries.length; i++) {
       const geometry = geometries[i].geometry;
@@ -76,7 +76,7 @@ export const ColorGroup = () => {
       geometry.setAttribute("color", new Float32BufferAttribute(colorArray, 3));
       stitchIndex += vertexCount;
     }
-  }, [embroideryStore.geometries, colorGroups]);
+  }, [EmbStore.geometries, colorGroups]);
 
   useEffect(() => {
     applyColors();

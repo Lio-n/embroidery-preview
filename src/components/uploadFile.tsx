@@ -12,7 +12,7 @@ import { readerEXP } from "@/formats/exp/readerEXP";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
-  const embroideryStore = useEmbroideryStore();
+  const EmbStore = useEmbroideryStore();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const currentFile = e.target.files?.[0];
@@ -32,7 +32,7 @@ export const UploadFile = () => {
     switch (extension) {
       case "pes":
         readerPES(file).then((data) => {
-          embroideryStore.updateSource({
+          EmbStore.updateSource({
             geometries: data.lines,
             ...data,
           });
@@ -42,7 +42,7 @@ export const UploadFile = () => {
         break;
       case "xxx":
         readerXXX(file).then((data) => {
-          embroideryStore.updateSource({
+          EmbStore.updateSource({
             geometries: data.lines,
             ...data,
           });
@@ -52,7 +52,7 @@ export const UploadFile = () => {
         break;
       case "jef":
         readerJEF(file).then((data) => {
-          embroideryStore.updateSource({
+          EmbStore.updateSource({
             geometries: data.lines,
             ...data,
           });
@@ -61,7 +61,7 @@ export const UploadFile = () => {
         break;
       case "exp":
         readerEXP(file).then((data) => {
-          embroideryStore.updateSource({
+          EmbStore.updateSource({
             geometries: data.lines,
             ...data,
           });
@@ -71,7 +71,7 @@ export const UploadFile = () => {
         break;
       case "dst":
         readerDST(file).then((data) => {
-          embroideryStore.updateSource({
+          EmbStore.updateSource({
             geometries: data.lines,
             ...data,
           });
