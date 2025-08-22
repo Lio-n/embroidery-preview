@@ -1,11 +1,4 @@
-import type {
-  BufferGeometry,
-  BufferGeometryEventMap,
-  Line,
-  Material,
-  NormalBufferAttributes,
-  Object3DEventMap,
-} from "three";
+import type { BufferGeometry, BufferGeometryEventMap, Line, Material, NormalBufferAttributes, Object3DEventMap } from "three";
 
 export type SuportFormats = "pes" | "xxx" | "exp" | "dst" | "jef";
 
@@ -53,9 +46,5 @@ export type OutputReadStitches = {
 };
 
 export type OutpusReaderFormats = OutputReadStitches & {
-  lines: Line<
-    BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>,
-    Material | Material[],
-    Object3DEventMap
-  >[];
+  lines: Line<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap>[];
 };

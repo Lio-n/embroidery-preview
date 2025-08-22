@@ -12,16 +12,8 @@ interface GenerateSVG {
   options?: SVGExportOptions;
 }
 
-export const generateEmbroiderySVG = ({
-  data,
-  options = {},
-}: GenerateSVG): string => {
-  const {
-    includeMetadata = true,
-    viewBoxPadding = 10,
-    strokeWidth = 1,
-    backgroundColor = "#f8f9fa",
-  } = options;
+export const generateEmbroiderySVG = ({ data, options = {} }: GenerateSVG): string => {
+  const { includeMetadata = true, viewBoxPadding = 10, strokeWidth = 1, backgroundColor = "#f8f9fa" } = options;
 
   const {
     blocks,
@@ -33,9 +25,7 @@ export const generateEmbroiderySVG = ({
 
   const width = size.x.max - size.x.min;
   const height = size.y.max - size.y.min;
-  const viewBox = `${size.x.min - viewBoxPadding} ${
-    size.y.min - viewBoxPadding
-  } ${width + viewBoxPadding * 2} ${height + viewBoxPadding * 2}`;
+  const viewBox = `${size.x.min - viewBoxPadding} ${size.y.min - viewBoxPadding} ${width + viewBoxPadding * 2} ${height + viewBoxPadding * 2}`;
 
   const paths = blocks
     .map((block, blockIndex) => {
@@ -43,7 +33,6 @@ export const generateEmbroiderySVG = ({
       const colors = block.colors;
 
       if (vertices.length === 0) return "";
-
       const color = `rgb(${colors[0]}, ${colors[1]}, ${colors[2]})`; // R G B
 
       let pathData = "";
@@ -65,15 +54,11 @@ export const generateEmbroiderySVG = ({
 
   const metadata = includeMetadata
     ? `
-    <g id="metadata" font-family="Arial" font-size="10" fill="#333" transform="translate(20, ${
-      height + 60
-    })">
+    <g id="metadata" font-family="Arial" font-size="10" fill="#333" transform="translate(20, ${height + 60})">
       <text y="0">Archivo: ${filesDetails.name}.${filesDetails.extension}</text>
       <text y="15">Puntadas: ${filesDetails.stitches.toLocaleString()}</text>
       <text y="30">Bloques: ${blocks.length}</text>
-      <text y="45">Dimensiones: ${(width / 10).toFixed(1)}x${(
-        height / 10
-      ).toFixed(1)} mm</text>
+      <text y="45">Dimensiones: ${(width / 10).toFixed(1)}x${(height / 10).toFixed(1)} mm</text>
       <text y="60">Saltos: ${filesDetails.jumps?.toLocaleString() || "0"}</text>
     </g>
   `

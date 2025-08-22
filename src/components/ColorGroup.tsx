@@ -1,19 +1,11 @@
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  BufferGeometry,
-  Float32BufferAttribute,
-  type BufferGeometryEventMap,
-  type NormalBufferAttributes,
-} from "three";
+import { BufferGeometry, Float32BufferAttribute, type BufferGeometryEventMap, type NormalBufferAttributes } from "three";
 import type { ColorGroup as TColorGroup } from "@/types/embroidery.types";
 import { ColorPicker } from "./ColorPicker";
 
 export type ColorRange = {
-  geometryRef: React.RefObject<BufferGeometry<
-    NormalBufferAttributes,
-    BufferGeometryEventMap
-  > | null>;
+  geometryRef: React.RefObject<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap> | null>;
   colorGroup: TColorGroup[];
 };
 
@@ -54,10 +46,7 @@ export const ColorGroup = () => {
       const positionAttribute = geometry.getAttribute("position");
       const vertexCount = positionAttribute.count;
 
-      while (
-        currentGroup &&
-        stitchIndex >= currentGroup.start + currentGroup.count
-      ) {
+      while (currentGroup && stitchIndex >= currentGroup.start + currentGroup.count) {
         currentGroupIndex++;
         currentGroup = colorGroups[currentGroupIndex];
       }
@@ -98,12 +87,12 @@ export const ColorGroup = () => {
     <div className="flex flex-wrap gap-2">
       {colorGroups.map((_, i) => (
         <div key={i}>
-          <ColorPicker
-            onChange={(v) => handleColorChange(i, v as string)}
-            value={colorHexCache[i]}
-          />
+          <ColorPicker onChange={(v) => handleColorChange(i, v as string)} value={colorHexCache[i]} />
         </div>
       ))}
     </div>
   );
 };
+
+// rgb : 0-1
+// EmbPalette.Color -> 0-1 -(0.1 to hex)- ColorPicker -> Hex -(hex to 0.1)- Update EmbPalette.Color -> 0.1

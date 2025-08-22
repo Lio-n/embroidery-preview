@@ -12,29 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { ImageDown } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  formSchema,
-  type TypeFormSchema,
-} from "@/validations/download.validation";
+import { formSchema, type TypeFormSchema } from "@/validations/download.validation";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 
 export const DownloadDialog = () => {
@@ -50,8 +33,7 @@ export const DownloadDialog = () => {
         <DialogHeader>
           <DialogTitle>Download your design</DialogTitle>
           <DialogDescription>
-            Choose the format to export your embroidery design (PNG, JPG, WEBP
-            or SVG) and save it to your device.
+            Choose the format to export your embroidery design (PNG, JPG, WEBP or SVG) and save it to your device.
           </DialogDescription>
         </DialogHeader>
         <Separator className="my-2" />
@@ -76,8 +58,6 @@ const DownloadForm = () => {
   });
 
   const onSubmit = (data: TypeFormSchema) => {
-    console.log(data);
-
     EmbStore.save({ filesDetails: { name: data.file_name } });
     EmbViewer.downloadScreenshot({
       format: data.select_format,
@@ -107,11 +87,7 @@ const DownloadForm = () => {
           render={({ field }) => (
             <FormItem className="[&>button]:w-full">
               <FormLabel>Format</FormLabel>
-              <Select
-                {...field}
-                defaultValue={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select {...field} defaultValue={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your license type..." />
@@ -124,13 +100,8 @@ const DownloadForm = () => {
                   <SelectItem value="webp">WEBP</SelectItem>
                 </SelectContent>
               </Select>
-              <FormDescription>
-                SVG is recommended for the best quality.
-              </FormDescription>
-              <FormDescription>
-                Vector formats maintain perfect sharpness at any size and can be
-                edited in professional software.
-              </FormDescription>
+              <FormDescription>SVG is recommended for the best quality.</FormDescription>
+              <FormDescription>Vector formats maintain perfect sharpness at any size and can be edited in professional software.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
