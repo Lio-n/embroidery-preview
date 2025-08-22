@@ -5,7 +5,7 @@ import type { BoundsApi } from "@react-three/drei";
 import { useEmbroideryStore } from "./embroiderySource.store";
 import { generateEmbroiderySVG } from "@/utils/svgGenerator.utils";
 import { downloadBlob } from "@/helpers/downloadBlob.helper";
-import type { PromiseReadStitches } from "@/types/embroidery.types";
+import type { OutputReadStitches } from "@/types/embroidery.types";
 import type { ExportFormat } from "@/validations/download.validation";
 import {
   convertSVGtoRaster,
@@ -41,14 +41,14 @@ export type EmbroideryViewerActions = {
   updateScene: (data: Partial<SceneOptions>) => void;
   exportAsSVG: (
     designData: Pick<
-      PromiseReadStitches,
+      OutputReadStitches,
       "blocks" | "filesDetails" | "designMetrics"
     >,
     options: ExportOptions
   ) => void;
   exportAsRaster: (
     designData: Pick<
-      PromiseReadStitches,
+      OutputReadStitches,
       "blocks" | "filesDetails" | "designMetrics"
     >,
     options: ExportOptions,

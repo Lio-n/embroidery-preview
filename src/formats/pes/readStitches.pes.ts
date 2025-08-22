@@ -2,16 +2,16 @@ import { blobToData } from "@/helpers/processBuffer.helper";
 import type {
   ColorGroup,
   FileDetails,
-  PromiseReadStitches,
+  OutputReadStitches,
   StitchBlock,
 } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitches = async (
+export const readStitchesPES = async (
   file: File
-): Promise<PromiseReadStitches> => {
+): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const view = new DataView(buffer);
   const uint8List = new Uint8Array(buffer);

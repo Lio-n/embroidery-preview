@@ -3,16 +3,16 @@ import { signed8 } from "@/helpers/readBit.helper";
 import type {
   ColorGroup,
   FileDetails,
-  PromiseReadStitches,
+  OutputReadStitches,
   StitchBlock,
 } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitches = async (
+export const readStitchesEXP = async (
   file: File
-): Promise<PromiseReadStitches> => {
+): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const uint8List = new Uint8Array(buffer);
 

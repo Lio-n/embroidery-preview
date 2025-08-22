@@ -1,4 +1,4 @@
-import type { PromiseReadStitches } from "@/types/embroidery.types";
+import type { OutputReadStitches } from "@/types/embroidery.types";
 
 interface SVGExportOptions {
   includeMetadata?: boolean;
@@ -8,7 +8,7 @@ interface SVGExportOptions {
 }
 
 interface GenerateSVG {
-  data: Pick<PromiseReadStitches, "blocks" | "filesDetails" | "designMetrics">;
+  data: Pick<OutputReadStitches, "blocks" | "filesDetails" | "designMetrics">;
   options?: SVGExportOptions;
 }
 

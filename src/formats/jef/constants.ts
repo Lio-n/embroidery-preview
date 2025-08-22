@@ -21,4 +21,4 @@ export const MAP_BYTE = {
     | STOP         | 0x80 | 0x01 |
     | JUMP         | 0x80 | 0x02 |
     | TRIM         | 0x80 | 0x02 |
-    */
+*/

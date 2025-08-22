@@ -16,3 +16,5 @@ export const MAP_BYTE = {
     | JUMP         | 0x7F | 0x01 | 0x08 |
     | TRIM         | 0x7F | 0x03 | 0x08 |
 */
+// The DST file is just a collection of stitch start and end points on a piece of fabric.
+// What I did in my DST loader is simulate that machine… and instead of thread, i draw quads with a texture of a small piece of thread on them, so when they are combined side by side it looks like the embroidery.

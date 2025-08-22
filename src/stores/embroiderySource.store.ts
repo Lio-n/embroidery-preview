@@ -4,18 +4,18 @@ import type { RefObject } from "react";
 import type {
   DesignMetrics,
   FileDetails,
-  PromiseReadStitches,
+  OutputReadStitches,
 } from "@/types/embroidery.types";
 import type { DeepPartial, PartialNull } from "@/types/general.types";
 
-export interface EmbroideryStoreState extends PartialNull<PromiseReadStitches> {
+export interface EmbroideryStoreState extends PartialNull<OutputReadStitches> {
   geometries: Line[] | null;
   geometryRef: RefObject<BufferGeometry | null> | null;
 }
 
 export type EmbroideryStoreActions = {
   updateSource: (data: Partial<EmbroideryStoreState>) => void;
-  save: (data: DeepPartial<PromiseReadStitches>) => void;
+  save: (data: DeepPartial<OutputReadStitches>) => void;
 };
 
 export type EmbroideryStore = EmbroideryStoreState & EmbroideryStoreActions;

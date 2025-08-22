@@ -4,11 +4,8 @@ import { Button } from "@/components/ui/button";
 import { FileUpIcon } from "lucide-react";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { validateFile } from "@/helpers/validateUploadFile.helper";
-import { readerPES } from "@/formats/pes/readerPES";
-import { readerXXX } from "@/formats/xxx/readerXXX";
-import { readerJEF } from "@/formats/jef/readerJEF";
-import { readerDST } from "@/formats/dst/readerDST";
-import { readerEXP } from "@/formats/exp/readerEXP";
+import { readerEmbroideryFormats } from "@/formats/reader";
+import type { SuportFormats } from "@/types/embroidery.types";
 
 export const UploadFile = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -23,65 +20,27 @@ export const UploadFile = () => {
     setFile(currentFile);
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     if (!file) return;
     const extension = file.name.toLowerCase().split(".").pop();
+    if (!extension) return;
 
-    switch (extension) {
-      case "pes":
-        readerPES(file).then((data) => {
-          EmbStore.updateSource({
-            geometries: data.lines,
-            ...data,
-          });
-        });
+    try {
+      const res = await readerEmbroideryFormats(
+        extension as SuportFormats,
+        file
+      );
 
-        setFile(null);
-        break;
-      case "xxx":
-        readerXXX(file).then((data) => {
-          EmbStore.updateSource({
-            geometries: data.lines,
-            ...data,
-          });
-        });
+      EmbStore.updateSource({
+        geometries: res.lines,
+        ...res,
+      });
 
-        setFile(null);
-        break;
-      case "jef":
-        readerJEF(file).then((data) => {
-          EmbStore.updateSource({
-            geometries: data.lines,
-            ...data,
-          });
-          setFile(null);
-        });
-        break;
-      case "exp":
-        readerEXP(file).then((data) => {
-          EmbStore.updateSource({
-            geometries: data.lines,
-            ...data,
-          });
-        });
-
-        setFile(null);
-        break;
-      case "dst":
-        readerDST(file).then((data) => {
-          EmbStore.updateSource({
-            geometries: data.lines,
-            ...data,
-          });
-
-          setFile(null);
-        });
-        break;
-      default:
-        alert("Unsupported file format. Please upload a JEF, DST or EXP file.");
-        return;
+      setFile(null);
+    } catch (error) {
+      console.error("Error :", error);
     }
   };
 

@@ -1,3 +1,14 @@
+import type {
+  BufferGeometry,
+  BufferGeometryEventMap,
+  Line,
+  Material,
+  NormalBufferAttributes,
+  Object3DEventMap,
+} from "three";
+
+export type SuportFormats = "pes" | "xxx" | "exp" | "dst" | "jef";
+
 export type FileDetails = {
   name: string;
   extension: string;
@@ -34,9 +45,17 @@ export type DesignMetrics = {
   };
 };
 
-export type PromiseReadStitches = {
+export type OutputReadStitches = {
   blocks: StitchBlock[];
   colorGroup: ColorGroup[];
   filesDetails: FileDetails;
   designMetrics: DesignMetrics;
+};
+
+export type OutpusReaderFormats = OutputReadStitches & {
+  lines: Line<
+    BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>,
+    Material | Material[],
+    Object3DEventMap
+  >[];
 };
