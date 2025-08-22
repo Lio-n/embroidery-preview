@@ -1,13 +1,23 @@
-import { object, string, type output } from "zod";
+import { z } from "zod";
 
-export const formSchema = object({
-  file_name: string()
+const ExportFormatEnum = z.enum(["svg", "png", "jpeg", "webp"]);
+export type ExportFormat = z.infer<typeof ExportFormatEnum>;
+
+export const formSchema = z.object({
+  file_name: z
+    .string()
+    .trim()
     .min(2, {
       message: "File name must be at least 2 characters.",
     })
     .max(20, {
       message: "File name cannot exceed 20 characters.",
+    })
+    .regex(/^[a-zA-Z0-9_\-\s]+$/, {
+      message:
+        "Only letters, numbers, hyphens, underscores, and spaces are allowed.",
     }),
-  select_format: string(),
+  select_format: ExportFormatEnum,
 });
-export type TypeFormSchema = output<typeof formSchema>;
+
+export type TypeFormSchema = z.output<typeof formSchema>;

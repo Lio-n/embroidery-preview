@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,6 +35,7 @@ import {
   formSchema,
   type TypeFormSchema,
 } from "@/validations/download.validation";
+import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 
 export const DownloadDialog = () => {
   return (
@@ -60,8 +62,10 @@ export const DownloadDialog = () => {
   );
 };
 
+// TODO : implemnte backgroud color picker
 const DownloadForm = () => {
   const EmbStore = useEmbroideryStore();
+  const EmbViewer = useEmbroideryViewer();
 
   const form = useForm<TypeFormSchema>({
     resolver: zodResolver(formSchema),
@@ -73,6 +77,11 @@ const DownloadForm = () => {
 
   const onSubmit = (data: TypeFormSchema) => {
     console.log(data);
+
+    EmbStore.save({ filesDetails: { name: data.file_name } });
+    EmbViewer.downloadScreenshot({
+      format: data.select_format,
+    });
   };
 
   return (
@@ -115,6 +124,13 @@ const DownloadForm = () => {
                   <SelectItem value="webp">WEBP</SelectItem>
                 </SelectContent>
               </Select>
+              <FormDescription>
+                SVG is recommended for the best quality.
+              </FormDescription>
+              <FormDescription>
+                Vector formats maintain perfect sharpness at any size and can be
+                edited in professional software.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -122,9 +138,13 @@ const DownloadForm = () => {
 
         <DialogFooter className="mt-6">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" disabled={EmbViewer.isExporting}>
+              Cancel
+            </Button>
           </DialogClose>
-          <Button type="submit">Download</Button>
+          <Button type="submit" disabled={EmbViewer.isExporting}>
+            Download
+          </Button>
         </DialogFooter>
       </form>
     </Form>

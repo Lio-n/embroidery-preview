@@ -21,10 +21,16 @@ export type StitchBlock = {
   colors: Uint8Array<ArrayBuffer>;
 };
 
+type Size = {
+  x: { max: number; min: number };
+  y: { max: number; min: number };
+};
+
 export type DesignMetrics = {
   boundingBox: {
     center: [number, number]; // [x,y]
     maxDimension: number;
+    size: Size;
   };
 };
 

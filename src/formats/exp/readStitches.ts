@@ -8,6 +8,7 @@ import type {
 } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
+import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
 export const readStitches = async (
   file: File
@@ -78,9 +79,15 @@ export const readStitches = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      colors[cIndex++] = currentColor.r;
-      colors[cIndex++] = currentColor.g;
-      colors[cIndex++] = currentColor.b;
+      const tempColor = colorFloatToUint8([
+        currentColor.r,
+        currentColor.g,
+        currentColor.b,
+      ]);
+
+      colors[cIndex++] = tempColor[0];
+      colors[cIndex++] = tempColor[1];
+      colors[cIndex++] = tempColor[2];
 
       pointIndex++;
       continue;
@@ -148,9 +155,15 @@ export const readStitches = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      colors[cIndex++] = currentColor.r;
-      colors[cIndex++] = currentColor.g;
-      colors[cIndex++] = currentColor.b;
+      const tempColor = colorFloatToUint8([
+        currentColor.r,
+        currentColor.g,
+        currentColor.b,
+      ]);
+
+      colors[cIndex++] = tempColor[0];
+      colors[cIndex++] = tempColor[1];
+      colors[cIndex++] = tempColor[2];
       pointIndex++;
       continue;
     }
@@ -184,6 +197,10 @@ export const readStitches = async (
       boundingBox: {
         center: [(minX + maxX) / 2, (minY + maxY) / 2],
         maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+        size: {
+          x: { max: maxX, min: minX },
+          y: { max: maxY, min: minY },
+        },
       },
     },
   };

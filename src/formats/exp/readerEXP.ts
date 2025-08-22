@@ -14,5 +14,9 @@ export const readerEXP = async (file: File) => {
   // Transform geometries to THREE.Line objects
   const lines = geometries.map((geometry) => processLine(geometry, material));
 
-  return { lines, ...r };
+  return {
+    lines,
+    blocks,
+    ...r,
+  };
 };

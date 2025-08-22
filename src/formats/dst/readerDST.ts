@@ -18,6 +18,7 @@ export const readerDST = async (file: File) => {
 
   return {
     lines,
+    blocks,
     ...r,
   };
 };
