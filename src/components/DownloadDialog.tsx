@@ -58,7 +58,7 @@ const DownloadForm = () => {
   });
 
   const onSubmit = (data: TypeFormSchema) => {
-    EmbStore.save({ filesDetails: { name: data.file_name } });
+    EmbStore.setState({ filesDetails: { name: data.file_name } });
     EmbViewer.downloadScreenshot({
       format: data.select_format,
     });

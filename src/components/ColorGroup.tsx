@@ -22,13 +22,14 @@ export const ColorGroup = () => {
   const colorHexCache = useMemo(() => {
     return colorGroups.map((group) => {
       if (!group?.color) return "#ffffff";
-      return `#${group.color
-        .map((c) =>
-          Math.round(c * 255)
-            .toString(16)
-            .padStart(2, "0")
-        )
-        .join("")}`;
+      const [r, g, b] = group.color;
+      return `#${Math.round(r * 255)
+        .toString(16)
+        .padStart(2, "0")}${Math.round(g * 255)
+        .toString(16)
+        .padStart(2, "0")}${Math.round(b * 255)
+        .toString(16)
+        .padStart(2, "0")}`;
     });
   }, [colorGroups]);
 
@@ -62,9 +63,14 @@ export const ColorGroup = () => {
         colorArray[j + 2] = b;
       }
 
+      console.log({ colorArray });
       geometry.setAttribute("color", new Float32BufferAttribute(colorArray, 3));
       stitchIndex += vertexCount;
+
+      // EmbStore.updateColorGroup(colorGroups);
     }
+
+    EmbStore.updateBlockColors(colorGroups);
   }, [EmbStore.geometries, colorGroups]);
 
   useEffect(() => {
@@ -79,6 +85,7 @@ export const ColorGroup = () => {
     setColorGroups((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], color: [r, g, b] };
+
       return updated;
     });
   }, []);

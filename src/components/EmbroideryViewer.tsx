@@ -14,35 +14,22 @@ export const EmbroideryViewer = () => {
 
   useEffect(() => {
     if (orbitControlsRef) {
-      EmbViewer.save({ orbitControlsRef, canvasRef });
+      EmbViewer.setState({ orbitControlsRef, canvasRef });
     }
   }, [orbitControlsRef, canvasRef]);
 
   return (
     <>
       <div className="mx-auto my-0 w-[95%] h-[calc(100vh_-_4rem)]">
-        <Canvas
-          ref={canvasRef}
-          gl={{ preserveDrawingBuffer: true, alpha: true }}
-          camera={{ position: [0, 0, 20], fov: 40 }}
-        >
-          {EmbViewer.scene?.backgroundColor && (
-            <color
-              attach="background"
-              args={[EmbViewer.scene?.backgroundColor]}
-            />
-          )}
+        <Canvas ref={canvasRef} gl={{ preserveDrawingBuffer: true, alpha: true }} camera={{ position: [0, 0, 20], fov: 40 }}>
+          {EmbViewer.scene?.backgroundColor && <color attach="background" args={[EmbViewer.scene?.backgroundColor]} />}
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls
             enableRotate
             ref={orbitControlsRef}
             makeDefault
-            maxDistance={
-              EmbStore.designMetrics?.boundingBox.maxDimension
-                ? EmbStore.designMetrics?.boundingBox.maxDimension * 1.5
-                : 20
-            }
+            maxDistance={EmbStore.designMetrics?.boundingBox.maxDimension ? EmbStore.designMetrics?.boundingBox.maxDimension * 1.5 : 20}
           />
 
           <Bounds fit clip margin={0.9}>

@@ -7,10 +7,7 @@ import { generateEmbroiderySVG } from "@/utils/svgGenerator.utils";
 import { downloadBlob } from "@/helpers/downloadBlob.helper";
 import type { OutputReadStitches } from "@/types/embroidery.types";
 import type { ExportFormat } from "@/validations/download.validation";
-import {
-  convertSVGtoRaster,
-  type ConversionOptions,
-} from "@/utils/svgToRaster.utils";
+import { convertSVGtoRaster, type ConversionOptions } from "@/utils/svgToRaster.utils";
 
 type SceneOptions = {
   backgroundColor: string | null;
@@ -37,20 +34,11 @@ type DownloadScreenshot = {
 
 export type EmbroideryViewerActions = {
   resetCameraView: () => void;
-  save: (data: Partial<EmbroideryViewerState>) => void;
+  setState: (data: Partial<EmbroideryViewerState>) => void;
   updateScene: (data: Partial<SceneOptions>) => void;
-  exportAsSVG: (
-    designData: Pick<
-      OutputReadStitches,
-      "blocks" | "filesDetails" | "designMetrics"
-    >,
-    options: ExportOptions
-  ) => void;
+  exportAsSVG: (designData: Pick<OutputReadStitches, "blocks" | "filesDetails" | "designMetrics">, options: ExportOptions) => void;
   exportAsRaster: (
-    designData: Pick<
-      OutputReadStitches,
-      "blocks" | "filesDetails" | "designMetrics"
-    >,
+    designData: Pick<OutputReadStitches, "blocks" | "filesDetails" | "designMetrics">,
     options: ExportOptions,
     format: Omit<ExportFormat, "svg">
   ) => void;
@@ -89,7 +77,7 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
       console.error("Error :", error);
     }
   },
-  save: (data) => {
+  setState: (data) => {
     try {
       set(data);
     } catch (error) {
@@ -97,8 +85,7 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
     }
   },
   downloadScreenshot: async ({ format, options = {} }) => {
-    const { blocks, filesDetails, designMetrics } =
-      useEmbroideryStore.getState();
+    const { blocks, filesDetails, designMetrics } = useEmbroideryStore.getState();
 
     if (!blocks || !filesDetails || !designMetrics) {
       throw new Error("No hay diseño cargado para exportar");
