@@ -1,3 +1,7 @@
+import type { BufferGeometry, BufferGeometryEventMap, Line, Material, NormalBufferAttributes, Object3DEventMap } from "three";
+
+export type SuportFormats = "pes" | "xxx" | "exp" | "dst" | "jef";
+
 export type FileDetails = {
   name: string;
   extension: string;
@@ -21,16 +25,26 @@ export type StitchBlock = {
   colors: Uint8Array<ArrayBuffer>;
 };
 
+type Size = {
+  x: { max: number; min: number };
+  y: { max: number; min: number };
+};
+
 export type DesignMetrics = {
   boundingBox: {
     center: [number, number]; // [x,y]
     maxDimension: number;
+    size: Size;
   };
 };
 
-export type PromiseReadStitches = {
+export type OutputReadStitches = {
   blocks: StitchBlock[];
   colorGroup: ColorGroup[];
   filesDetails: FileDetails;
   designMetrics: DesignMetrics;
+};
+
+export type OutpusReaderFormats = OutputReadStitches & {
+  lines: Line<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap>[];
 };

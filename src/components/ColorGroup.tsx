@@ -1,63 +1,53 @@
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  BufferGeometry,
-  Float32BufferAttribute,
-  type BufferGeometryEventMap,
-  type NormalBufferAttributes,
-} from "three";
+import { BufferGeometry, Float32BufferAttribute, type BufferGeometryEventMap, type NormalBufferAttributes } from "three";
 import type { ColorGroup as TColorGroup } from "@/types/embroidery.types";
 import { ColorPicker } from "./ColorPicker";
 
 export type ColorRange = {
-  geometryRef: React.RefObject<BufferGeometry<
-    NormalBufferAttributes,
-    BufferGeometryEventMap
-  > | null>;
+  geometryRef: React.RefObject<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap> | null>;
   colorGroup: TColorGroup[];
 };
 
 export const ColorGroup = () => {
-  const embroideryStore = useEmbroideryStore();
+  const EmbStore = useEmbroideryStore();
   const [colorGroups, setColorGroups] = useState<TColorGroup[]>([]);
 
   useEffect(() => {
-    if (embroideryStore.colorGroup) {
-      setColorGroups(embroideryStore.colorGroup);
+    if (EmbStore.colorGroup) {
+      setColorGroups(EmbStore.colorGroup);
     }
-  }, [embroideryStore.colorGroup]);
+  }, [EmbStore.colorGroup]);
 
   const colorHexCache = useMemo(() => {
     return colorGroups.map((group) => {
       if (!group?.color) return "#ffffff";
-      return `#${group.color
-        .map((c) =>
-          Math.round(c * 255)
-            .toString(16)
-            .padStart(2, "0")
-        )
-        .join("")}`;
+      const [r, g, b] = group.color;
+      return `#${Math.round(r * 255)
+        .toString(16)
+        .padStart(2, "0")}${Math.round(g * 255)
+        .toString(16)
+        .padStart(2, "0")}${Math.round(b * 255)
+        .toString(16)
+        .padStart(2, "0")}`;
     });
   }, [colorGroups]);
 
   const applyColors = useCallback(() => {
-    if (!embroideryStore.geometries || colorGroups.length === 0) return;
+    if (!EmbStore.geometries || colorGroups.length === 0) return;
 
     let stitchIndex = 0;
     let currentGroupIndex = 0;
     let currentGroup = colorGroups[currentGroupIndex];
 
-    const geometries = embroideryStore.geometries;
+    const geometries = EmbStore.geometries;
 
     for (let i = 0; i < geometries.length; i++) {
       const geometry = geometries[i].geometry;
       const positionAttribute = geometry.getAttribute("position");
       const vertexCount = positionAttribute.count;
 
-      while (
-        currentGroup &&
-        stitchIndex >= currentGroup.start + currentGroup.count
-      ) {
+      while (currentGroup && stitchIndex >= currentGroup.start + currentGroup.count) {
         currentGroupIndex++;
         currentGroup = colorGroups[currentGroupIndex];
       }
@@ -76,7 +66,9 @@ export const ColorGroup = () => {
       geometry.setAttribute("color", new Float32BufferAttribute(colorArray, 3));
       stitchIndex += vertexCount;
     }
-  }, [embroideryStore.geometries, colorGroups]);
+
+    EmbStore.updateBlockColors(colorGroups);
+  }, [EmbStore.geometries, colorGroups]);
 
   useEffect(() => {
     applyColors();
@@ -90,6 +82,7 @@ export const ColorGroup = () => {
     setColorGroups((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], color: [r, g, b] };
+
       return updated;
     });
   }, []);
@@ -98,12 +91,12 @@ export const ColorGroup = () => {
     <div className="flex flex-wrap gap-2">
       {colorGroups.map((_, i) => (
         <div key={i}>
-          <ColorPicker
-            onChange={(v) => handleColorChange(i, v as string)}
-            value={colorHexCache[i]}
-          />
+          <ColorPicker onChange={(v) => handleColorChange(i, v as string)} value={colorHexCache[i]} />
         </div>
       ))}
     </div>
   );
 };
+
+// rgb : 0-1
+// EmbPalette.Color -> 0-1 -(0.1 to hex)- ColorPicker -> Hex -(hex to 0.1)- Update EmbPalette.Color -> 0.1

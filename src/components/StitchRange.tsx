@@ -3,15 +3,15 @@ import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { Slider } from "./ui/slider";
 
 export const StitchRange = () => {
-  const embroideryStore = useEmbroideryStore();
+  const EmbStore = useEmbroideryStore();
 
   const [progress, setProgress] = useState(Infinity); // Default to a large number to show all initially
 
   useEffect(() => {
-    if (!embroideryStore.geometries) return;
+    if (!EmbStore.geometries) return;
 
     let remaining = progress;
-    embroideryStore.geometries.forEach((line) => {
+    EmbStore.geometries.forEach((line) => {
       const vertexCount = line.geometry.getAttribute("position").count;
       if (remaining > 0) {
         const showCount = Math.min(vertexCount, remaining);
@@ -25,14 +25,14 @@ export const StitchRange = () => {
 
   const maxDrawRange = useMemo(() => {
     return (
-      embroideryStore.geometries?.reduce((sum, line) => {
+      EmbStore.geometries?.reduce((sum, line) => {
         const count = line.geometry.getAttribute("position").count;
         return sum + count;
       }, 0) ?? 1
     );
-  }, [embroideryStore.geometries]);
+  }, [EmbStore.geometries]);
 
-  if (!embroideryStore.geometries) return null;
+  if (!EmbStore.geometries) return null;
 
   return (
     <>

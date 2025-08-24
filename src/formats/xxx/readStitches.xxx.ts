@@ -1,24 +1,39 @@
 import { blobToData } from "@/helpers/processBuffer.helper";
-import { signed8 } from "@/helpers/readBit.helper";
+import { decodeSignedByte } from "@/helpers/readBit.helper";
 import type {
   ColorGroup,
   FileDetails,
-  PromiseReadStitches,
+  OutputReadStitches,
   StitchBlock,
 } from "@/types/embroidery.types";
-import { generatePalette } from "@/utils/generatePalette";
+import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
+import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitches = async (
+export const readStitchesXXX = async (
   file: File
-): Promise<PromiseReadStitches> => {
+): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
+  const view = new DataView(buffer);
   const uint8List = new Uint8Array(buffer);
+
+  const colorCount = view.getUint16(MAP_BYTE.COLOR_COUNT, true);
+
+  const palette_offset = view.getUint32(MAP_BYTE.PALETTE_OFFSET, true);
+
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
+  let cx = 0,
+    cy = 0,
+    x = 0,
+    y = 0;
 
   const filesDetails: FileDetails = {
     name: file.name.substring(0, file.name.lastIndexOf(".")),
     extension: file.name.split(".").pop()?.toLocaleUpperCase() + "",
-    color_changes: 0,
+    color_changes: colorCount,
     stitches: 0,
     width: 0,
     height: 0,
@@ -26,16 +41,15 @@ export const readStitches = async (
     size: file.size / 1024, // Size in KB
   };
 
-  const palette = generatePalette(10);
+  const threeColors = generatePalette(colorCount);
 
-  let colorIndex = 0;
-  let currentColor = palette[colorIndex];
-
+  let currentColor = threeColors[0];
   const colorGroup: ColorGroup[] = [];
-  let pointIndex = 0;
+  let pointIndex = 0,
+    index = 0;
 
   let currentGroup: ColorGroup = {
-    index: colorIndex,
+    index,
     start: pointIndex,
     count: 0,
     color: [currentColor.r, currentColor.g, currentColor.b],
@@ -49,46 +63,26 @@ export const readStitches = async (
   let vIndex = 0,
     cIndex = 0;
 
-  let cx = 0,
-    cy = 0,
-    ptr = 0;
-  let minX = Infinity,
-    minY = Infinity,
-    maxX = -Infinity,
-    maxY = -Infinity;
-  const { JUMP_CODE, COLOR_CHANGE_CODE, END_CODE, FLAG } = MAP_BYTE.COMMANDS;
+  const { TRIM, JUMP, END, COLOR_CHANGE, LONG } = MAP_BYTE.COMMANDS;
 
-  while (ptr < uint8List.length) {
+  let ptr = 0x100;
+  while (ptr < palette_offset) {
     const b1 = uint8List[ptr++];
     const b2 = uint8List[ptr++];
 
-    // Normal Stitch
-    if (b1 !== FLAG) {
-      minX = Math.min(minX, cx);
-      minY = Math.min(minY, cy);
-      maxX = Math.max(maxX, cx);
-      maxY = Math.max(maxY, cy);
+    if (END(b1, b2)) break;
 
-      const dx = signed8(b1);
-      const dy = signed8(b2);
-      cx += dx;
-      cy += dy;
-
-      vertices[vIndex++] = cx;
-      vertices[vIndex++] = cy;
-      vertices[vIndex++] = 0;
-
-      colors[cIndex++] = currentColor.r;
-      colors[cIndex++] = currentColor.g;
-      colors[cIndex++] = currentColor.b;
-
-      pointIndex++;
-      continue;
+    if (LONG(b1)) {
+      x = (b2 & 0xff) + (uint8List[ptr++] << 8);
+      y = view.getInt16(ptr, true);
+      ptr += 2;
+    } else {
+      // NORMAL STITCH
+      x = decodeSignedByte(b1);
+      y = decodeSignedByte(b2);
     }
 
-    if (b2 === END_CODE) continue;
-
-    if (b2 === COLOR_CHANGE_CODE) {
+    if (COLOR_CHANGE(b1, b2)) {
       currentGroup.count = pointIndex - currentGroup.start;
       colorGroup.push(currentGroup);
 
@@ -107,27 +101,19 @@ export const readStitches = async (
         cIndex = 0;
       }
 
-      colorIndex++;
-      currentColor = palette[colorIndex % palette.length];
+      index++;
+      currentColor = threeColors[index % threeColors.length];
 
       currentGroup = {
-        index: colorIndex,
+        index,
         start: pointIndex,
         count: 0,
         color: [currentColor.r, currentColor.g, currentColor.b],
       };
-
       continue;
     }
 
-    const ex = uint8List[ptr++];
-    const ey = uint8List[ptr++];
-    const dx = signed8(ex);
-    const dy = signed8(ey);
-    cx += dx;
-    cy += dy;
-
-    if (b2 === JUMP_CODE) {
+    if (JUMP(b1, b2)) {
       if (vIndex > 0) {
         const finalVertices = vertices.subarray(0, vIndex);
         const finalColors = colors.subarray(0, cIndex);
@@ -142,19 +128,62 @@ export const readStitches = async (
         vIndex = 0;
         cIndex = 0;
       }
-      continue;
-    } else {
-      vertices[vIndex++] = cx;
-      vertices[vIndex++] = cy;
-      vertices[vIndex++] = 0;
 
-      colors[cIndex++] = currentColor.r;
-      colors[cIndex++] = currentColor.g;
-      colors[cIndex++] = currentColor.b;
-      pointIndex++;
+      filesDetails.jumps += 1;
       continue;
     }
+
+    if (TRIM(b1, b2)) {
+      if (vIndex > 0) {
+        const finalVertices = vertices.subarray(0, vIndex);
+        const finalColors = colors.subarray(0, cIndex);
+
+        blocks.push({
+          vertices: finalVertices,
+          colors: finalColors,
+        });
+
+        vertices = new Float32Array(estimatedPoints * 3);
+        colors = new Uint8Array(estimatedPoints * 3);
+        vIndex = 0;
+        cIndex = 0;
+      }
+
+      continue;
+    }
+
+    minX = Math.min(minX, cx);
+    minY = Math.min(minY, cy);
+    maxX = Math.max(maxX, cx);
+    maxY = Math.max(maxY, cy);
+
+    cx += x;
+    cy += y;
+
+    vertices[vIndex++] = cx;
+    vertices[vIndex++] = cy;
+    vertices[vIndex++] = 0;
+
+    const tempColor = colorFloatToUint8([
+      currentColor.r,
+      currentColor.g,
+      currentColor.b,
+    ]);
+
+    colors[cIndex++] = tempColor[0];
+    colors[cIndex++] = tempColor[1];
+    colors[cIndex++] = tempColor[2];
+    pointIndex++;
+
+    pointIndex++;
   }
+
+  filesDetails.stitches = pointIndex;
+  const sizeX = maxX - minX;
+  const sizeY = maxY - minY;
+
+  filesDetails.width = sizeX / 10;
+  filesDetails.height = sizeY / 10;
 
   if (vIndex > 0) {
     const finalVertices = vertices.subarray(0, vIndex);
@@ -166,16 +195,6 @@ export const readStitches = async (
     });
   }
 
-  currentGroup.count = pointIndex - currentGroup.start;
-  colorGroup.push(currentGroup);
-
-  const sizeX = maxX - minX;
-  const sizeY = maxY - minY;
-  filesDetails.color_changes = colorGroup.length;
-  filesDetails.stitches = pointIndex;
-  filesDetails.width = sizeX / 10;
-  filesDetails.height = sizeY / 10;
-
   return {
     blocks,
     colorGroup,
@@ -184,6 +203,10 @@ export const readStitches = async (
       boundingBox: {
         center: [(minX + maxX) / 2, (minY + maxY) / 2],
         maxDimension: Math.max(0.01 * sizeX, 0.01 * sizeY, 0),
+        size: {
+          x: { max: maxX, min: minX },
+          y: { max: maxY, min: minY },
+        },
       },
     },
   };
