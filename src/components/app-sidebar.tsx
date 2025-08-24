@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useEmbroideryStore } from "@/stores/embroiderySource.store";
 import { UploadFile } from "./uploadFile";
-// import { useIsMobile } from "@/hooks/use-mobile";
 import { NavControls } from "./nav/controls.nav";
 import { NavFileDetails } from "./nav/fileDetails.nav";
 import { NavExports } from "./nav/exports.nav";
@@ -22,32 +21,29 @@ import { NavExports } from "./nav/exports.nav";
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const EmbStore = useEmbroideryStore();
 
-  const isFileLoaded = EmbStore.geometries
-    ? EmbStore.geometries.length > 0
-    : false;
-  // const isMobile = useIsMobile();
+  const isFileLoaded = EmbStore.geometries ? EmbStore.geometries.length > 0 : false;
   /*
-  $ Controls
-	# Design
-		- Stitch Range
-		- Color Group
-	# Scene
-		- Center
-		- Background
-$ File Details
-	- Name
-    	- Extension
-    	- Version
-    	- Date
-    	- Color Changes
-    	- Stitches
-    	- Jumps
-    	- Size
-    	- Width
-    	- Height
-$ Exports
-	# Download JPG -> Open POPUP (format opcions)
-	# Conversion -> Open POPUP (to other formats)
+      $ Controls
+      # Design
+        - Stitch Range
+        - Color Group
+      # Scene
+        - Center
+        - Background
+      $ File Details
+        - Name
+            - Extension
+            - Version
+            - Date
+            - Color Changes
+            - Stitches
+            - Jumps
+            - Size
+            - Width
+            - Height
+      $ Exports
+        - Download -> Open Dialog (format opcions)
+        - Conversion -> Open Dialog (to other formats)
   */
   return (
     <Sidebar {...props}>
@@ -74,10 +70,7 @@ $ Exports
           <SidebarMenu>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <NavControls isFileLoaded={isFileLoaded} />
-            <NavFileDetails
-              isFileLoaded={isFileLoaded}
-              data={EmbStore.filesDetails}
-            />
+            <NavFileDetails isFileLoaded={isFileLoaded} data={EmbStore.filesDetails} />
             <NavExports isFileLoaded={isFileLoaded} />
           </SidebarMenu>
 

@@ -26,7 +26,7 @@ export const EmbroideryViewer = () => {
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
           <OrbitControls
-            enableRotate
+            enableRotate={false}
             ref={orbitControlsRef}
             makeDefault
             maxDistance={EmbStore.designMetrics?.boundingBox.maxDimension ? EmbStore.designMetrics?.boundingBox.maxDimension * 1.5 : 20}

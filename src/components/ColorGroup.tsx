@@ -63,11 +63,8 @@ export const ColorGroup = () => {
         colorArray[j + 2] = b;
       }
 
-      console.log({ colorArray });
       geometry.setAttribute("color", new Float32BufferAttribute(colorArray, 3));
       stitchIndex += vertexCount;
-
-      // EmbStore.updateColorGroup(colorGroups);
     }
 
     EmbStore.updateBlockColors(colorGroups);

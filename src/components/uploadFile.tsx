@@ -28,10 +28,7 @@ export const UploadFile = () => {
     if (!extension) return;
 
     try {
-      const res = await readerEmbroideryFormats(
-        extension as SuportFormats,
-        file
-      );
+      const res = await readerEmbroideryFormats(extension as SuportFormats, file);
 
       EmbStore.updateSource({
         geometries: res.lines,
@@ -46,21 +43,13 @@ export const UploadFile = () => {
 
   return (
     <Card className="py-2">
-      {/* <CardHeader className="px-2">
-        <CardTitle>Upload a File</CardTitle>
-        <CardDescription>
-          Select a file to upload and click the submit button.
-        </CardDescription>
-      </CardHeader> */}
       <CardContent className="px-2">
         <form onSubmit={handleSubmit} className="grid gap-2 select-none">
           {file && (
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-xs">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {(file.size / 1024).toFixed(2)} KB
-                </p>
+                <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
               </div>
               <Button type="submit" className="text-xs cursor-pointer">
                 Upload
@@ -78,9 +67,7 @@ export const UploadFile = () => {
                 <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
                   <span className="font-semibold">Click to upload</span>
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  DST JEF EXP XXX PES (MAX. SIZE 1MB)
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">DST JEF EXP XXX PES (MAX. SIZE 1MB)</p>
               </div>
               <input
                 accept=".jef,.JEF,.dst,.DST,.exp,.EXP,.pes,.PES,.xxx,.XXX"

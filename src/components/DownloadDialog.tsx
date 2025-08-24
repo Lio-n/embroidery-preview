@@ -44,7 +44,6 @@ export const DownloadDialog = () => {
   );
 };
 
-// TODO : implemnte backgroud color picker
 const DownloadForm = () => {
   const EmbStore = useEmbroideryStore();
   const EmbViewer = useEmbroideryViewer();
@@ -96,12 +95,26 @@ const DownloadForm = () => {
                 <SelectContent>
                   <SelectItem value="svg">SVG</SelectItem>
                   <SelectItem value="png">PNG</SelectItem>
-                  <SelectItem value="jpeg">JPEG</SelectItem>
+                  <SelectItem value="jpg">JPG</SelectItem>
                   <SelectItem value="webp">WEBP</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>SVG is recommended for the best quality.</FormDescription>
               <FormDescription>Vector formats maintain perfect sharpness at any size and can be edited in professional software.</FormDescription>
+              <Separator className="my-2" />
+
+              <div className="text-muted-foreground text-sm">
+                <p>
+                  Keep in mind <span className="italic text-xs">(This will change in the future)</span>:
+                </p>
+                <ul className="list-inside list-disc text-sm">
+                  <li>The colors in the scene may differ slightly from the actual result.</li>
+                  <li>By default Background Color is #F8F9FA.</li>
+                  <li>
+                    The conversion of SVG (vector) to PNG/JPG/WEBP is used first-hand. <span className="italic text-xs">(Rasterization process)</span>
+                  </li>
+                </ul>
+              </div>
               <FormMessage />
             </FormItem>
           )}

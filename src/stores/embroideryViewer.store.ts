@@ -101,7 +101,7 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
           await get().exportAsSVG(designData, options);
           break;
         case "png":
-        case "jpeg":
+        case "jpg":
         case "webp":
           await get().exportAsRaster(designData, options, format);
           break;
@@ -131,12 +131,12 @@ export const useEmbroideryViewer = create<EmbroideryViewer>((set, get) => ({
       options,
     });
 
-    // TODO : The raster is used temporarily, as there is a conflict when obtaining the correct size of the design on stage. The capture fails in quality.
+    // TODO : The raster is used temporarily, as there is a conflict obtaining the correct size of the design on stage. The capture fails in quality.
     const blob = await convertSVGtoRaster(svgContent, {
       type: `image/${format}` as ConversionOptions["type"],
     });
 
-    downloadBlob(blob, `${designData.filesDetails.name}.png`);
+    downloadBlob(blob, `${designData.filesDetails.name}.${format}`);
   },
   updateScene: (data) => {
     try {

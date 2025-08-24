@@ -2,19 +2,11 @@ export interface ConversionOptions {
   width?: number;
   height?: number;
   quality?: number;
-  type?: "image/png" | "image/jpeg" | "image/webp";
+  type?: "image/png" | "image/jpg" | "image/webp";
 }
 
-export const convertSVGtoRaster = async (
-  svgString: string,
-  options: ConversionOptions = {}
-): Promise<Blob> => {
-  const {
-    width = 800,
-    height = 600,
-    quality = 1,
-    type = "image/webp",
-  } = options;
+export const convertSVGtoRaster = async (svgString: string, options: ConversionOptions = {}): Promise<Blob> => {
+  const { width = 800, height = 600, quality = 1, type = "image/webp" } = options;
 
   const svgBlob = new Blob([svgString], {
     type: "image/svg+xml;charset=utf-8",
