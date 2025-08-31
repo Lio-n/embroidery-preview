@@ -3,7 +3,7 @@ import { Color } from "three";
 export const generatePalette = (colorCount: number): Color[] => {
   const palette: Color[] = [];
 
-  for (let i = 0; i < colorCount + 1; i++) {
+  for (let i = 0; i < colorCount; i++) {
     const r = Math.random();
     const g = Math.random();
     const b = Math.random();

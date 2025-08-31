@@ -2,11 +2,11 @@
 export const MAP_BYTE = {
   COMMANDS: {
     FLAG: 0x80,
-    JUMP_CODE: 0x04,
-    TOP_CODE: 0x01,
-    TRIM_CODE: 0x02,
-    COLOR_CHANGE_CODE: 0x01,
-    END_CODE: 0x80,
+    JUMP_FLAG: 0x04,
+    TOP_FLAG: 0x01,
+    TRIM_FLAG: 0x02,
+    COLOR_CHANGE_FLAG: 0x01,
+    END_FLAG: 0x80,
   },
 };
 /* EXP Body - Command Table

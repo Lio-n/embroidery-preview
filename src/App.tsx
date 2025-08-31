@@ -7,17 +7,14 @@ import "./App.css";
 //   BreadcrumbPage,
 //   BreadcrumbSeparator,
 // } from "./components/ui/breadcrumb";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "./components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 import { AppSidebar } from "./components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "./components/mode-toggle";
 import { useEmbroideryStore } from "./stores/embroiderySource.store";
 // import { useIsMobile } from "./hooks/use-mobile";
 
+// https://github.dev/EmbroidePy/EmbroideryIO/blob/master/core/src/main/java/org/embroideryio/embroideryio/JefWriter.java
 // https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
 // https://github.dev/inkstitch/pystitch/blob/main/src/pystitch/ReadHelper.py
@@ -59,11 +56,7 @@ function App() {
             <ModeToggle />
           </div>
         </header>
-        <div>
-          {EmbroideryViewer && EmbStore.geometries?.length && (
-            <EmbroideryViewer.EmbroideryViewer />
-          )}
-        </div>
+        <div>{EmbroideryViewer && EmbStore.geometries?.length && <EmbroideryViewer.EmbroideryViewer />}</div>
         {/* <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="bg-muted/50 aspect-video rounded-xl" />

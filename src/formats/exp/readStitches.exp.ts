@@ -1,18 +1,11 @@
 import { blobToData } from "@/helpers/processBuffer.helper";
 import { signed8 } from "@/helpers/readBit.helper";
-import type {
-  ColorGroup,
-  FileDetails,
-  OutputReadStitches,
-  StitchBlock,
-} from "@/types/embroidery.types";
+import type { ColorGroup, FileDetails, OutputReadStitches, StitchBlock } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitchesEXP = async (
-  file: File
-): Promise<OutputReadStitches> => {
+export const readStitchesEXP = async (file: File): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const uint8List = new Uint8Array(buffer);
 
@@ -57,7 +50,7 @@ export const readStitchesEXP = async (
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
-  const { JUMP_CODE, COLOR_CHANGE_CODE, END_CODE, FLAG } = MAP_BYTE.COMMANDS;
+  const { JUMP_FLAG, COLOR_CHANGE_FLAG, END_FLAG, FLAG } = MAP_BYTE.COMMANDS;
 
   while (ptr < uint8List.length) {
     const b1 = uint8List[ptr++];
@@ -79,11 +72,7 @@ export const readStitchesEXP = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      const tempColor = colorFloatToUint8([
-        currentColor.r,
-        currentColor.g,
-        currentColor.b,
-      ]);
+      const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
       colors[cIndex++] = tempColor[0];
       colors[cIndex++] = tempColor[1];
@@ -93,9 +82,9 @@ export const readStitchesEXP = async (
       continue;
     }
 
-    if (b2 === END_CODE) continue;
+    if (b2 === END_FLAG) continue;
 
-    if (b2 === COLOR_CHANGE_CODE) {
+    if (b2 === COLOR_CHANGE_FLAG) {
       currentGroup.count = pointIndex - currentGroup.start;
       colorGroup.push(currentGroup);
 
@@ -134,7 +123,7 @@ export const readStitchesEXP = async (
     cx += dx;
     cy += dy;
 
-    if (b2 === JUMP_CODE) {
+    if (b2 === JUMP_FLAG) {
       if (vIndex > 0) {
         const finalVertices = vertices.subarray(0, vIndex);
         const finalColors = colors.subarray(0, cIndex);
@@ -155,11 +144,7 @@ export const readStitchesEXP = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      const tempColor = colorFloatToUint8([
-        currentColor.r,
-        currentColor.g,
-        currentColor.b,
-      ]);
+      const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
       colors[cIndex++] = tempColor[0];
       colors[cIndex++] = tempColor[1];

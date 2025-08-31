@@ -1,25 +1,18 @@
 import { blobToData } from "@/helpers/processBuffer.helper";
-import type {
-  ColorGroup,
-  FileDetails,
-  OutputReadStitches,
-  StitchBlock,
-} from "@/types/embroidery.types";
+import type { ColorGroup, FileDetails, OutputReadStitches, StitchBlock } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitchesPES = async (
-  file: File
-): Promise<OutputReadStitches> => {
+export const readStitchesPES = async (file: File): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const view = new DataView(buffer);
   const uint8List = new Uint8Array(buffer);
   const decoder = new TextDecoder("utf8");
 
   const PEC_BYTE_OFFSET = view.getUint32(8, true);
-  const colorOffset =
-    PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.FIRST_SECTION.COLOR_COUNT;
+  const colorOffset = PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.FIRST_SECTION.COLOR_COUNT;
+
   const colorCount = uint8List[colorOffset] + 1;
 
   const filesDetails: FileDetails = {
@@ -37,6 +30,7 @@ export const readStitchesPES = async (
   const blocks: StitchBlock[] = [];
 
   const threeColors = generatePalette(colorCount);
+
   let currentColor = threeColors[0];
 
   const colorGroup: ColorGroup[] = [];
@@ -58,11 +52,8 @@ export const readStitchesPES = async (
     cy = 0,
     x = 0,
     y = 0;
-  let ptr =
-    PEC_BYTE_OFFSET +
-    MAP_BYTE.PEC_HEADER.SECOND_SECTION["pec-stitch-list-subsection"];
-  const { FLAG_LONG, JUMP_CODE, TRIM_CODE, END, COLOR_CHANGE } =
-    MAP_BYTE.COMMANDS;
+  let ptr = PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.SECOND_SECTION["pec-stitch-list-subsection"];
+  const { LONG_FLAG, JUMP_FLAG, TRIM_FLAG, END, COLOR_CHANGE } = MAP_BYTE.COMMANDS;
 
   const estimatedPoints = Math.floor(file.size / 2);
   let vertices = new Float32Array(estimatedPoints * 3);
@@ -101,7 +92,7 @@ export const readStitchesPES = async (
       }
 
       index++;
-      currentColor = threeColors[index];
+      currentColor = threeColors[index % threeColors.length];
 
       currentGroup = {
         index,
@@ -114,11 +105,11 @@ export const readStitchesPES = async (
     }
 
     // X
-    if (b1 & FLAG_LONG) {
+    if (b1 & LONG_FLAG) {
       const code = (b1 << 8) | b2;
 
-      jump = !!(b1 & JUMP_CODE);
-      trim = !!(b1 & TRIM_CODE);
+      jump = !!(b1 & JUMP_FLAG);
+      trim = !!(b1 & TRIM_FLAG);
 
       x = (code << 20) >> 20;
       b2 = uint8List[ptr++];
@@ -127,12 +118,12 @@ export const readStitchesPES = async (
     }
 
     // Y
-    if (b2 & FLAG_LONG) {
+    if (b2 & LONG_FLAG) {
       const b3 = uint8List[ptr++];
 
       const code = (b2 << 8) | b3;
-      jump = !!(b2 & JUMP_CODE);
-      trim = !!(b2 & TRIM_CODE);
+      jump = !!(b2 & JUMP_FLAG);
+      trim = !!(b2 & TRIM_FLAG);
 
       y = -(code << 20) >> 20;
     } else {
@@ -172,11 +163,7 @@ export const readStitchesPES = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      const tempColor = colorFloatToUint8([
-        currentColor.r,
-        currentColor.g,
-        currentColor.b,
-      ]);
+      const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
       colors[cIndex++] = tempColor[0];
       colors[cIndex++] = tempColor[1];

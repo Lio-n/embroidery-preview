@@ -1,29 +1,21 @@
 import { parseDatetime } from "@/helpers/parseDatetime.helper";
 import { blobToData } from "@/helpers/processBuffer.helper";
 import { signed8 } from "@/helpers/readBit.helper";
-import type {
-  ColorGroup,
-  FileDetails,
-  OutputReadStitches,
-  StitchBlock,
-} from "@/types/embroidery.types";
+import type { ColorGroup, FileDetails, OutputReadStitches, StitchBlock } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitchesJEF = async (
-  file: File
-): Promise<OutputReadStitches> => {
+export const readStitchesJEF = async (file: File): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const view = new DataView(buffer);
   const uint8List = new Uint8Array(buffer);
 
   const colorCount = view.getInt32(MAP_BYTE.COLOR_COUNT, true);
+  console.log({ colorCount });
   const stitchOffset = view.getInt32(MAP_BYTE.OFFSET_STITCH, true);
 
-  const dateStr = parseDatetime(
-    new TextDecoder("ascii").decode(buffer.slice(8, 8 + 14))
-  );
+  const dateStr = parseDatetime(new TextDecoder("ascii").decode(buffer.slice(8, 8 + 14)));
 
   let minX = Infinity,
     minY = Infinity,
@@ -69,7 +61,7 @@ export const readStitchesJEF = async (
 
   let ptr = stitchOffset; // Start of stitch data
 
-  const { JUMP_CODE, FLAG, END_CODE, COLOR_CHANGE_CODE } = MAP_BYTE.COMMANDS;
+  const { JUMP_FLAG, FLAG, END_FLAG, COLOR_CHANGE_FLAG } = MAP_BYTE.COMMANDS;
 
   while (ptr < buffer.byteLength) {
     const b1 = uint8List[ptr++];
@@ -91,11 +83,7 @@ export const readStitchesJEF = async (
       vertices[vIndex++] = cy;
       vertices[vIndex++] = 0;
 
-      const tempColor = colorFloatToUint8([
-        currentColor.r,
-        currentColor.g,
-        currentColor.b,
-      ]);
+      const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
       colors[cIndex++] = tempColor[0];
       colors[cIndex++] = tempColor[1];
@@ -104,9 +92,9 @@ export const readStitchesJEF = async (
       continue;
     }
 
-    if (b2 === END_CODE) break;
+    if (b2 === END_FLAG) break;
 
-    if (b2 === COLOR_CHANGE_CODE) {
+    if (b2 === COLOR_CHANGE_FLAG) {
       currentGroup.count = pointIndex - currentGroup.start;
       colorGroup.push(currentGroup);
 
@@ -137,7 +125,7 @@ export const readStitchesJEF = async (
       continue;
     }
 
-    if (b2 === JUMP_CODE) {
+    if (b2 === JUMP_FLAG) {
       filesDetails.jumps += 1;
 
       const dx = signed8(view.getUint8(ptr++));
