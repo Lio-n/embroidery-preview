@@ -1,29 +1,13 @@
-import { ChevronRight, Download, RefreshCcwDot } from "lucide-react";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { ChevronRight, Download } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from "@/components/ui/sidebar";
 import { DownloadDialog } from "@/components/DownloadDialog";
+import { ConversionDialog } from "../ConversionDialog";
 
 export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
   return (
     <SidebarMenu>
-      <Collapsible
-        key="Exports"
-        asChild
-        defaultOpen={true}
-        className="group/collapsible"
-      >
+      <Collapsible key="Exports" asChild defaultOpen={true} className="group/collapsible">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton tooltip="Exports">
@@ -41,9 +25,7 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
                 </SidebarMenuSubItem>
 
                 <SidebarMenuSubItem key={"ExportsConversion"}>
-                  <Button variant="outline" size="sm" disabled>
-                    <RefreshCcwDot /> Conversion
-                  </Button>
+                  <ConversionDialog />
                 </SidebarMenuSubItem>
               </SidebarMenuSub>
             </CollapsibleContent>

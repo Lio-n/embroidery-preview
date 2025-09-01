@@ -3,7 +3,7 @@ import { MAP_BYTE } from "./jef/constants";
 
 export class JEFWriter {
   private static readonly JEF_HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
-  private static readonly JEF_COMMANDS = MAP_BYTE.COMMANDS;
+  private static readonly COMMAND = MAP_BYTE.COMMANDS;
 
   static getBuffer(stitchesBlocks: Stitch_Block[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
@@ -128,23 +128,24 @@ export class JEFWriter {
   static encodeStitches(blocks: Stitch_Block[]): Uint8Array {
     const bytes: number[] = [];
 
+    // Each command is 4 bytes long: 0x80, 0x??, dx, dy (except END which simply ends at 0x80, 0x10).
+
     let offset = 0;
     for (const block of blocks) {
       if (block.colorChange) {
-        // COLOR_CHANGE command: 0x80, 0x01, 0x00, 0x00
-        bytes[offset++] = 0x80;
-        bytes[offset++] = 0x01;
+        bytes[offset++] = this.COMMAND.FLAG;
+        bytes[offset++] = this.COMMAND.COLOR_CHANGE_FLAG;
         bytes[offset++] = 0x00;
         bytes[offset++] = 0x00;
       } else if (block.isTrim) {
-        bytes[offset++] = 0x80; // COMMAND_FLAG
-        bytes[offset++] = 0x02; // TRIM_COMMAND
+        bytes[offset++] = this.COMMAND.FLAG;
+        bytes[offset++] = this.COMMAND.TRIM_FLAG;
         bytes[offset++] = 0x00;
         bytes[offset++] = 0x00;
       } else if (block.isJump) {
         for (const stitch of block.stitches) {
-          bytes[offset++] = 0x80; // COMMAND_FLAG
-          bytes[offset++] = 0x02; // JUMP_COMMAND
+          bytes[offset++] = this.COMMAND.FLAG;
+          bytes[offset++] = this.COMMAND.JUMP_FLAG;
           bytes[offset++] = this.clampToSignedByte(stitch.x);
           bytes[offset++] = this.clampToSignedByte(stitch.y);
         }
@@ -160,8 +161,8 @@ export class JEFWriter {
     }
 
     // Add END command at the very end
-    bytes[offset++] = 0x80;
-    bytes[offset++] = 0x10;
+    bytes[offset++] = this.COMMAND.FLAG;
+    bytes[offset++] = this.COMMAND.END_FLAG;
     bytes[offset++] = 0x00;
     bytes[offset++] = 0x00;
 

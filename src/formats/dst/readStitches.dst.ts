@@ -1,9 +1,4 @@
-import type {
-  ColorGroup,
-  FileDetails,
-  OutputReadStitches,
-  StitchBlock,
-} from "@/types/embroidery.types";
+import type { ColorGroup, FileDetails, OutputReadStitches, StitchBlock } from "@/types/embroidery.types";
 import { decodeCoord } from "./decodeCoord";
 import { decodeHeader } from "./docodeHeader";
 import { blobToData } from "@/helpers/processBuffer.helper";
@@ -11,12 +6,10 @@ import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitchesDST = async (
-  file: File
-): Promise<OutputReadStitches> => {
+export const readStitchesDST = async (file: File): Promise<OutputReadStitches> => {
   const buffer = await blobToData(file);
   const header = decodeHeader(buffer);
-  const threeColors = generatePalette(parseInt(header?.CO));
+  const threeColors = generatePalette(parseInt(header?.CO) + 1);
   const uint8List = new Uint8Array(buffer);
 
   let currentColor = threeColors[0];
@@ -69,12 +62,7 @@ export const readStitchesDST = async (
 
     if (END(b1, b2, b3)) break;
 
-    const {
-      x,
-      y,
-      color_stop: isColorChange,
-      jump: isJump,
-    } = decodeCoord(b3, b2, b1);
+    const { x, y, color_stop: isColorChange, jump: isJump } = decodeCoord(b3, b2, b1);
     filesDetails.jumps += isJump ? 1 : 0;
     cx += x;
     cy += y;
@@ -136,11 +124,7 @@ export const readStitchesDST = async (
     vertices[vIndex++] = cy;
     vertices[vIndex++] = 0;
 
-    const tempColor = colorFloatToUint8([
-      currentColor.r,
-      currentColor.g,
-      currentColor.b,
-    ]);
+    const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
     colors[cIndex++] = tempColor[0];
     colors[cIndex++] = tempColor[1];

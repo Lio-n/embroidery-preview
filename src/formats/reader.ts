@@ -6,11 +6,7 @@ import { readStitchesXXX } from "./xxx/readStitches.xxx";
 import { readStitchesPES } from "./pes/readStitches.pes";
 import { readStitchesJEF } from "./jef/readStitches.jef";
 import { readStitchesEXP } from "./exp/readStitches.exp";
-import { DSTReader } from "./DST.reader";
-import { blobToData } from "@/helpers/processBuffer.helper";
-import type { Stitch_Block } from "./interface";
-import { JEFWriter } from "./JEF.writer";
-import { JEFReader } from "./JEF.reader";
+import { readStitchesDST } from "./dst/readStitches.dst";
 
 export const readerEmbroideryFormats = async (extension: SuportFormats, file: File): Promise<OutpusReaderFormats> => {
   let processedData: OutputReadStitches | null = null;
@@ -25,36 +21,13 @@ export const readerEmbroideryFormats = async (extension: SuportFormats, file: Fi
       break;
     case "jef":
       processedData = await readStitchesJEF(file);
-      {
-        const buffer = await blobToData(file);
-
-        const stitchBlocks: Stitch_Block[] = JEFReader.getStitches(buffer);
-        console.log({ stitchBlocks });
-
-        // const buffer: Uint8Array = PESWriter.getBuffer(stitchBlocks);
-        const bufferParsed: Uint8Array = JEFWriter.getBuffer(stitchBlocks);
-
-        saveFile(bufferParsed, "design.JEF");
-      }
       break;
     case "exp":
       processedData = await readStitchesEXP(file);
 
       break;
     case "dst":
-      //  processedData = await readStitchesDST(file);
-      {
-        const buffer = await blobToData(file);
-
-        const stitchBlocks: Stitch_Block[] = DSTReader.getStitches(buffer);
-        console.log({ stitchBlocks });
-
-        // const buffer: Uint8Array = PESWriter.getBuffer(stitchBlocks);
-        const bufferParsed: Uint8Array = JEFWriter.getBuffer(stitchBlocks);
-
-        saveFile(bufferParsed, "design.JEF");
-      }
-
+      processedData = await readStitchesDST(file);
       break;
     default:
       throw new Error("Unsupported file format. Please upload a JEF, DST or EXP file.");
@@ -73,27 +46,4 @@ export const readerEmbroideryFormats = async (extension: SuportFormats, file: Fi
     lines,
     ...processedData,
   };
-};
-
-const saveFile = (data: Uint8Array, filename: string = "design.pes"): void => {
-  try {
-    const blob = new Blob([data as BlobPart], { type: "application/octet-stream" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.style.display = "none";
-
-    document.body.appendChild(a);
-    a.click();
-
-    // Limpieza
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-  } catch (error) {
-    console.error("Error saving PES file:", error);
-  }
 };

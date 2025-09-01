@@ -9,8 +9,7 @@ export interface JEFStitch {
 }
 
 export class JEFReader {
-  private static readonly COMMANDS = MAP_BYTE.COMMANDS;
-  private static readonly OFFSET_STITCH = MAP_BYTE.OFFSET_STITCH;
+  private static readonly COMMAND = MAP_BYTE.COMMANDS;
 
   static getStitches(buffer: ArrayBuffer): Stitch_Block[] {
     const jefStitches = this.readJEF(buffer);
@@ -32,13 +31,13 @@ export class JEFReader {
       const b2 = view.getUint8(ptr++);
 
       // Detect special commands (byte1 = 0x80)
-      if (b1 === 0x80) {
+      if (b1 === this.COMMAND.FLAG) {
         switch (b2) {
-          case 0x10: // END command
+          case this.COMMAND.END_FLAG: // END command
             stitches.push({ x: 0, y: 0, command: "END" });
             return stitches;
 
-          case 0x01: // COLOR_CHANGE or STOP
+          case this.COMMAND.COLOR_CHANGE_FLAG: // COLOR_CHANGE or STOP
             {
               const dx1 = signed8(view.getUint8(ptr++));
               const dy1 = signed8(view.getUint8(ptr++));
@@ -46,12 +45,12 @@ export class JEFReader {
             }
             break;
 
-          case 0x02: // JUMP or TRIM
+          case this.COMMAND.JUMP_FLAG: // JUMP or TRIM
             {
               const dx2 = signed8(view.getUint8(ptr++));
               const dy2 = signed8(view.getUint8(ptr++));
 
-              // TRIM es un JUMP con distancia 0
+              // TRIM is a JUMP with distance 0
               if (dx2 === 0 && dy2 === 0) {
                 stitches.push({ x: 0, y: 0, command: "TRIM" });
               } else {
