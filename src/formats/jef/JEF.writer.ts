@@ -1,15 +1,15 @@
-import type { Stitch_Block } from "./interface";
-import { MAP_BYTE } from "./jef/constants";
+import type { StitchBlock } from "@/types/embroidery.types";
+import { MAP_BYTE } from "./constants";
 
 export class JEFWriter {
   private static readonly JEF_HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
   private static readonly COMMAND = MAP_BYTE.COMMANDS;
 
-  static getBuffer(stitchesBlocks: Stitch_Block[]): Uint8Array {
+  static getBuffer(stitchesBlocks: StitchBlock[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
-    const colorChanges = stitchesBlocks.filter((b) => b.colorChange).length;
+    const colorChanges = stitchesBlocks.filter((b) => b.isColorChange).length;
 
-    const header = this.writeHeader(colorChanges);
+    const header = this.writeHeader(colorChanges + 1);
 
     const jefFile = new Uint8Array(header.length + stitches.length);
     jefFile.set(header);
@@ -125,14 +125,14 @@ export class JEFWriter {
     return header;
   }
 
-  static encodeStitches(blocks: Stitch_Block[]): Uint8Array {
+  static encodeStitches(blocks: StitchBlock[]): Uint8Array {
     const bytes: number[] = [];
 
     // Each command is 4 bytes long: 0x80, 0x??, dx, dy (except END which simply ends at 0x80, 0x10).
 
     let offset = 0;
     for (const block of blocks) {
-      if (block.colorChange) {
+      if (block.isColorChange) {
         bytes[offset++] = this.COMMAND.FLAG;
         bytes[offset++] = this.COMMAND.COLOR_CHANGE_FLAG;
         bytes[offset++] = 0x00;
@@ -176,22 +176,3 @@ export class JEFWriter {
     return value & 0xff; // Ensure it's treated as unsigned byte
   }
 }
-
-/* JEF Header
-Type 	Bytes 	Value 	Description
-`u32` 	4 	0x74 +8 * Color_Changes 	Offset into file where stitches begin.
-`u32` 	4 	0x14 	Unknown.
-`char` 	14 	"20180712082429" (example) 	Date
-`char` 	1 	'm', 'n', 'o','p','q','r','s',t' 	Version letter. 12000: m, 11000: n, 10000v3: o, 10000 v2.2 p, 9000 q, mc350, r, mc200 s, mb4 t. Janome's software leaves this as 00 00 at times.
-`u8` 	1 	0x20 	Unknown
-`u32` 	4 	Color Count 	Color Count
-`u32` 	4 	Points Length / 2 	Points Length /2. So 80 01 00 00 is 2 not 1.
-`u32` 	4 	Hoop Used 	Hoop
-`u32` 	16 	Extends 	Distances from center of hoop.
-`u32` 	16 	Edge amount for hoop 	Distance from default 110 x 110 Hoop, or -1,-1,-1,-1 if does not fit.
-`u32` 	16 	Edge amount for hoop 	Distance from default 50 x 50 Hoop, or -1,-1,-1,-1 if does not fit.
-`u32` 	16 	Edge amount for hoop 	Distance from default 140 x 200 Hoop, or -1,-1,-1,-1 if does not fit.
-`u32` 	16 	Edge amount for hoop 	Distance from custom hoop, or -1,-1,-1,-1 if does not fit.
-`u32` 	4 * Color_Changes 	Magic Number Color Lookup 	List of colors changes.
-`u32` 	4 * Color_Changes 	0x0D 	The values 0x0D, 0x0D, 0x0D, 0x0D repeated as many times as there are color changes. 
-*/

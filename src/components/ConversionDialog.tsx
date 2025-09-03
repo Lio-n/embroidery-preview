@@ -17,7 +17,9 @@ import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConversionFormSchema, type TypeConversionFormSchema } from "@/validations/conversion.validation";
-import { writerEmbroideryFormats } from "@/formats/writer";
+import { EmbroideryManager } from "@/formats/EmbroideryManager";
+import { FORMAT_EMBROIDERY } from "@/types/embroidery.types";
+import { downloadBlob } from "@/helpers/downloadBlob.helper";
 
 export const ConversionDialog = () => {
   return (
@@ -47,15 +49,21 @@ const ConversionForm = () => {
     defaultValues: {
       file: undefined,
       file_name: "",
-      select_format: "jef",
+      select_format: FORMAT_EMBROIDERY.JEF,
     },
   });
 
   const { isSubmitting } = form.formState;
 
   const onSubmit = async (data: TypeConversionFormSchema) => {
+    // Update file name
     const fileUpdated = new File([data.file], data.file_name + "." + data.select_format, { type: data.file.type });
-    await writerEmbroideryFormats(data.select_format, fileUpdated);
+
+    const buffer = await new EmbroideryManager().convertFormat(fileUpdated, FORMAT_EMBROIDERY.DST, data.select_format);
+
+    // Download new file format
+    const blob = new Blob([buffer as BlobPart], { type: "application/octet-stream" });
+    downloadBlob(blob, fileUpdated.name);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +119,7 @@ const ConversionForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="jef">JEF</SelectItem>
+                  <SelectItem value={FORMAT_EMBROIDERY.JEF}>{FORMAT_EMBROIDERY.JEF}</SelectItem>
                 </SelectContent>
               </Select>
             </FormItem>

@@ -8,7 +8,6 @@ export const downloadBlob = (blob: Blob, path: string): void => {
 
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
 
     setTimeout(() => {
       document.body.removeChild(link);

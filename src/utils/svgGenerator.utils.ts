@@ -1,4 +1,4 @@
-import type { OutputReadStitches } from "@/types/embroidery.types";
+import type { OutputStitchGeometry } from "@/types/embroidery.types";
 
 interface SVGExportOptions {
   includeMetadata?: boolean;
@@ -8,7 +8,7 @@ interface SVGExportOptions {
 }
 
 interface GenerateSVG {
-  data: Pick<OutputReadStitches, "blocks" | "filesDetails" | "designMetrics">;
+  data: Pick<OutputStitchGeometry, "blocks" | "filesDetails" | "designMetrics">;
   options?: SVGExportOptions;
 }
 

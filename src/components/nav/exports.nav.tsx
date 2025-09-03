@@ -17,21 +17,20 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             </SidebarMenuButton>
           </CollapsibleTrigger>
 
-          {isFileLoaded ? (
-            <CollapsibleContent className="mb-4">
-              <SidebarMenuSub className="pt-2 text-xs text-left">
+          <CollapsibleContent className="mb-4">
+            <SidebarMenuSub className="pt-2 text-xs text-left">
+              {isFileLoaded ? (
                 <SidebarMenuSubItem key={"ExportsDownload"} className="mb-2">
                   <DownloadDialog />
                 </SidebarMenuSubItem>
-
-                <SidebarMenuSubItem key={"ExportsConversion"}>
-                  <ConversionDialog />
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          ) : (
-            <p className="italic select-none text-xs">No file loaded</p>
-          )}
+              ) : (
+                <p className="italic select-none text-xs">No file loaded</p>
+              )}
+              <SidebarMenuSubItem key={"ExportsConversion"}>
+                <ConversionDialog />
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </CollapsibleContent>
         </SidebarMenuItem>
       </Collapsible>
     </SidebarMenu>

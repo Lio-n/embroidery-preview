@@ -1,15 +1,15 @@
 import { processGeometry } from "@/helpers/processGeometry.helper";
 import { LineBasicMaterial } from "three";
 import { processLine } from "@/helpers/processLines.helper";
-import type { OutpusReaderFormats, OutputReadStitches, SuportFormats } from "@/types/embroidery.types";
+import type { OutpusReaderFormats, OutputStitchGeometry, SuportFormats } from "@/types/embroidery.types";
 import { readStitchesXXX } from "./xxx/readStitches.xxx";
 import { readStitchesPES } from "./pes/readStitches.pes";
-import { readStitchesJEF } from "./jef/readStitches.jef";
 import { readStitchesEXP } from "./exp/readStitches.exp";
-import { readStitchesDST } from "./dst/readStitches.dst";
+import { DSTReader } from "./dst/DSTReader";
+import { JEFReader } from "./jef/JEF.reader";
 
 export const readerEmbroideryFormats = async (extension: SuportFormats, file: File): Promise<OutpusReaderFormats> => {
-  let processedData: OutputReadStitches | null = null;
+  let processedData: OutputStitchGeometry | null = null;
 
   switch (extension) {
     case "pes":
@@ -20,14 +20,21 @@ export const readerEmbroideryFormats = async (extension: SuportFormats, file: Fi
 
       break;
     case "jef":
-      processedData = await readStitchesJEF(file);
+      {
+        const r = new JEFReader(file);
+        processedData = await r.process();
+      }
       break;
     case "exp":
       processedData = await readStitchesEXP(file);
 
       break;
     case "dst":
-      processedData = await readStitchesDST(file);
+      // processedData = await readStitchesDST(file);
+      {
+        const r = new DSTReader(file);
+        processedData = await r.process();
+      }
       break;
     default:
       throw new Error("Unsupported file format. Please upload a JEF, DST or EXP file.");
