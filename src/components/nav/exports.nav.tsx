@@ -18,13 +18,13 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
           </CollapsibleTrigger>
 
           <CollapsibleContent className="mb-4">
-            <SidebarMenuSub className="pt-2 text-xs text-left">
+            <SidebarMenuSub className="pt-2 text-left">
               {isFileLoaded ? (
                 <SidebarMenuSubItem key={"ExportsDownload"} className="mb-2">
                   <DownloadDialog />
                 </SidebarMenuSubItem>
               ) : (
-                <p className="italic select-none text-xs">No file loaded</p>
+                <p className="italic select-none text-xs text-center mb-2">No file loaded</p>
               )}
               <SidebarMenuSubItem key={"ExportsConversion"}>
                 <ConversionDialog />

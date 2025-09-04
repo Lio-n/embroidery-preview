@@ -2,6 +2,7 @@ import { FORMAT_EMBROIDERY, type OutputStitchGeometry, type StitchBlock } from "
 import { DSTReader } from "./dst/DSTReader";
 import { JEFWriter } from "./jef/JEF.writer";
 import { JEFReader } from "./jef/JEF.reader";
+import { PESWriter } from "./PES.writer";
 
 export class EmbroideryManager {
   // Proccess for Three.Js
@@ -26,6 +27,11 @@ export class EmbroideryManager {
         await r.getSimpleStitches();
         return r.createToStitchBlocks();
       }
+      case FORMAT_EMBROIDERY.JEF: {
+        const r = new JEFReader(file);
+        await r.getSimpleStitches();
+        return r.createToStitchBlocks();
+      }
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -35,12 +41,15 @@ export class EmbroideryManager {
     switch (format) {
       case FORMAT_EMBROIDERY.JEF:
         return JEFWriter.getBuffer(design);
+      case FORMAT_EMBROIDERY.PES:
+        return PESWriter.getBuffer(design);
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
   }
 
   async convertFormat(file: File, from: FORMAT_EMBROIDERY, to: FORMAT_EMBROIDERY): Promise<Uint8Array> {
+    console.log(`Convert from ${from} to ${to}`);
     const r = await this.readSimpleFile(file, from);
     const buffer = this.writeFile(r, to);
 

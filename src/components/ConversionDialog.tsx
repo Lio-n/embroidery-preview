@@ -59,7 +59,11 @@ const ConversionForm = () => {
     // Update file name
     const fileUpdated = new File([data.file], data.file_name + "." + data.select_format, { type: data.file.type });
 
-    const buffer = await new EmbroideryManager().convertFormat(fileUpdated, FORMAT_EMBROIDERY.DST, data.select_format);
+    const buffer = await new EmbroideryManager().convertFormat(
+      fileUpdated,
+      data.file.name.split(".").pop()?.toUpperCase() as FORMAT_EMBROIDERY,
+      data.select_format
+    );
 
     // Download new file format
     const blob = new Blob([buffer as BlobPart], { type: "application/octet-stream" });
@@ -85,7 +89,7 @@ const ConversionForm = () => {
               <FormLabel>File</FormLabel>
 
               <FormControl>
-                <Input onChange={handleFileChange} type="file" placeholder="No file has been uploaded." accept=".dst" />
+                <Input onChange={handleFileChange} type="file" placeholder="No file has been uploaded." accept=".dst,.jef" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -119,6 +123,7 @@ const ConversionForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  <SelectItem value={FORMAT_EMBROIDERY.PES}>{FORMAT_EMBROIDERY.PES}</SelectItem>
                   <SelectItem value={FORMAT_EMBROIDERY.JEF}>{FORMAT_EMBROIDERY.JEF}</SelectItem>
                 </SelectContent>
               </Select>

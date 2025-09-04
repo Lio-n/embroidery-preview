@@ -1,5 +1,5 @@
 import { signed8 } from "@/helpers/readBit.helper";
-import { type DecodedBytes, type OutputStitchGeometry } from "@/types/embroidery.types";
+import { COMMAND, type DecodedBytes, type OutputStitchGeometry } from "@/types/embroidery.types";
 import { BaseEmbroidery } from "../core/BaseEmbroidery";
 import { blobToData } from "@/helpers/processBuffer.helper";
 import { MAP_BYTE } from "./constants";
@@ -161,60 +161,34 @@ export class JEFReader extends BaseEmbroidery {
     this.threeColors = generatePalette(this.metadata.color_changes);
   }
 
-  /*
-  getSimpleStitches(buffer: ArrayBuffer): Stitch[] {
-    const view = new DataView(buffer);
-    const stitches: Stitch[] = [];
-
-    const stitchOffset = view.getUint32(0, true);
-
-    let ptr = stitchOffset;
-
-    while (ptr < buffer.byteLength - 1) {
-      const b1 = view.getUint8(ptr++);
-      const b2 = view.getUint8(ptr++);
-
-      // Detect special commands (byte1 = 0x80)
-      if (b1 === this.COMMAND.FLAG) {
-        switch (b2) {
-          case this.COMMAND.END_FLAG: // END command
-            stitches.push({ x: 0, y: 0, command: COMMAND.END });
-            return stitches;
-
-          case this.COMMAND.COLOR_CHANGE_FLAG: // COLOR_CHANGE or STOP
-            {
-              const dx1 = signed8(view.getUint8(ptr++));
-              const dy1 = signed8(view.getUint8(ptr++));
-              stitches.push({ x: dx1, y: dy1, command: COMMAND.COLOR_CHANGE });
-            }
-            break;
-
-          case this.COMMAND.JUMP_FLAG: // JUMP or TRIM
-            {
-              const dx2 = signed8(view.getUint8(ptr++));
-              const dy2 = signed8(view.getUint8(ptr++));
-
-              // TRIM is a JUMP with distance 0
-              if (dx2 === 0 && dy2 === 0) {
-                stitches.push({ x: 0, y: 0, command: COMMAND.TRIM });
-              } else {
-                stitches.push({ x: dx2, y: dy2, command: COMMAND.JUMP });
-              }
-            }
-            break;
-
-          default:
-            break;
-        }
-      } else {
-        // Stitch normal
-        const dx = signed8(b1);
-        const dy = signed8(b2);
-        stitches.push({ x: dx, y: dy, command: COMMAND.STITCH });
-      }
+  async getSimpleStitches(): Promise<void> {
+    if (!this.buffer) {
+      this.buffer = await blobToData(this.file);
     }
 
-    return stitches;
+    const uint8List = new Uint8Array(this.buffer);
+    const limit = this.buffer.byteLength;
+    this.OFFSET_SIZE = uint8List[this.MAP_BYTE.OFFSET_STITCH];
+
+    for (let i = this.OFFSET_SIZE; i < limit; i += this.BYTES_PER_STITCH) {
+      if (i >= limit - this.BYTES_PER_STITCH) break;
+
+      const b1 = uint8List[i];
+      const b2 = uint8List[i + 1];
+
+      if (b1 === this.MAP_BYTE.COMMANDS.FLAG && b2 === this.MAP_BYTE.COMMANDS.END_FLAG) break;
+
+      const { x, y, isColorChange, isJump } = this.decodeBytes(b1, b2);
+
+      let command = COMMAND.STITCH;
+      if (isJump) command = COMMAND.JUMP;
+      if (isColorChange) command = COMMAND.COLOR_CHANGE;
+
+      this.stitches.push({
+        x,
+        y,
+        command,
+      });
+    }
   }
-  */
 }

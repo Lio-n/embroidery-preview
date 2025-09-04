@@ -198,13 +198,30 @@ export class PESWriter {
   static encodeStitches(blocks: StitchBlock[]): Uint8Array {
     const bytes: number[] = [];
     let colorChangeCounter = 2;
-    // let currentX = 0;
-    // let currentY = 0;
 
     for (const block of blocks) {
       if (block.isColorChange) {
+        // Color changes should write: Write 1 byte: 0xfe Write 1 byte: 0xb0 Write 1 byte: 2, 1, 2, 1, 2, 1...
+        // alternating back and forth. Starting with 2 and each additional color change use the next character in sequence.
         bytes.push(this.PEC_COMMANDS.COLOR_CHANGE_FLAG[0], this.PEC_COMMANDS.COLOR_CHANGE_FLAG[1], colorChangeCounter);
         colorChangeCounter = colorChangeCounter === 2 ? 1 : 2;
+        continue;
+      } else if (block.isTrim) {
+        // Jumps are long form stitches with the command bit for Jump set. 0b1001????_????????, 0b1001????_????????
+        for (const stitch of block.stitches) {
+          const dx = stitch.x;
+          const dy = stitch.y;
+
+          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.JUMP_FLAG);
+        }
+        continue;
+      } else if (block.isJump) {
+        for (const stitch of block.stitches) {
+          const dx = stitch.x;
+          const dy = stitch.y;
+
+          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.JUMP_FLAG);
+        }
         continue;
       }
 
@@ -212,12 +229,12 @@ export class PESWriter {
         const dx = stitch.x;
         const dy = stitch.y;
 
-        if (block.isJump) {
-          this.encodeJump(bytes, dx, dy);
-        } else if (block.isTrim) {
-          this.encodeTrim(bytes, dx, dy);
+        if (Math.abs(dx) <= 127 && Math.abs(dy) <= 127) {
+          // Short form: 2 bytes for normal stitches
+          this.encodeShortStitch(bytes, dx, dy);
         } else {
-          this.encodeNormalStitch(bytes, dx, dy);
+          // Long form: 4 bytes for large moves
+          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.LONG_FLAG);
         }
       }
     }
@@ -226,29 +243,11 @@ export class PESWriter {
     return new Uint8Array(bytes);
   }
 
-  private static encodeNormalStitch(bytes: number[], dx: number, dy: number): void {
-    if (Math.abs(dx) <= 63 && Math.abs(dy) <= 63) {
-      // Formato corto
-      bytes.push(dx & 0x7f);
-      bytes.push(dy & 0x7f);
-    } else {
-      // Formato largo
-      this.encodeLongStitch(bytes, dx, 0);
-      this.encodeLongStitch(bytes, dy, 0);
-    }
+  private static encodeShortStitch(bytes: number[], dx: number, dy: number): void {
+    bytes.push(dx & 0x7f, dy & 0x7f);
   }
 
-  private static encodeJump(bytes: number[], dx: number, dy: number): void {
-    this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.JUMP_FLAG); // JUMP_FLAG
-    this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.JUMP_FLAG);
-  }
-
-  private static encodeTrim(bytes: number[], dx: number, dy: number): void {
-    this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.TRIM_FLAG); // TRIM_FLAG
-    this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.TRIM_FLAG);
-  }
-
-  private static encodeLongStitch(bytes: number[], value: number, command: number): void {
+  private static encodeLongStitch_(bytes: number[], value: number, command: number): void {
     const absValue = Math.min(2047, Math.abs(value));
     const signBit = value < 0 ? 0x08 : 0x00;
 
@@ -257,4 +256,31 @@ export class PESWriter {
 
     bytes.push(highByte, lowByte);
   }
+
+  private static encodeLongStitch(bytes: number[], dx: number, dy: number, command: number): void {
+    this.encodeLongStitch_(bytes, dx, command);
+    this.encodeLongStitch_(bytes, dy, command);
+  }
+
+  // private static encodeJump(bytes: number[], dx: number, dy: number): void {
+  //   this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.JUMP_FLAG); // JUMP_FLAG
+  //   this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.JUMP_FLAG);
+  // }
+
+  // private static encodeTrim(bytes: number[], dx: number, dy: number): void {
+  //   this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.TRIM_FLAG); // TRIM_FLAG
+  //   this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.TRIM_FLAG);
+  // }
+
+  // private static encodeNormalStitch(bytes: number[], dx: number, dy: number): void {
+  //   if (Math.abs(dx) <= 63 && Math.abs(dy) <= 63) {
+  //     // Formato corto
+  //     bytes.push(dx & 0x7f);
+  //     bytes.push(dy & 0x7f);
+  //   } else {
+  //     // Formato largo
+  //     this.encodeLongStitch(bytes, dx, 0);
+  //     this.encodeLongStitch(bytes, dy, 0);
+  //   }
+  // }
 }
