@@ -1,5 +1,5 @@
 import type { StitchBlock } from "@/types/embroidery.types";
-import { MAP_BYTE } from "./pes/constants";
+import { MAP_BYTE } from "./constants";
 
 export class PESWriter {
   private static readonly PES_HEADER = "#PES0001";
@@ -11,41 +11,34 @@ export class PESWriter {
     const designName = "Design";
     const colorChanges = stitchesBlocks.filter((b) => b.isColorChange).length;
 
-    // Calcular dimensiones
     const width = 100;
     const height = 100;
 
-    // Escribir encabezado PEC
-    const pecHeader = this.writePecHeader(designName, colorChanges - 1, width, height);
+    const pecHeader = this.writePecHeader(designName, colorChanges, width, height);
 
-    // Primero necesitamos saber el tamaño real del header PES
-    const pesHeaderPlaceholder = this.writePESHeader(0); // Header temporal para medir
+    const pesHeaderPlaceholder = this.writePESHeader(0); // Temp header to measure
     const PES_HEADER_ACTUAL_SIZE = pesHeaderPlaceholder.length;
 
-    // Actualizar el offset del bloque PEC en el header PES
+    // Update the PEC lock offset in the PES header
     const updatedPesHeader = this.writePESHeader(PES_HEADER_ACTUAL_SIZE);
 
-    // Crear buffer final
     const totalSize = updatedPesHeader.length + pecHeader.length + stitches.length;
     const finalBuffer = new Uint8Array(totalSize);
 
     let currentOffset = 0;
 
-    // 1. Encabezado PES (con offset correcto)
     finalBuffer.set(updatedPesHeader, currentOffset);
     currentOffset += updatedPesHeader.length;
 
-    // 2. Encabezado PEC (en la posición indicada por pecBlockOffset)
     finalBuffer.set(pecHeader, currentOffset);
     currentOffset += pecHeader.length;
 
-    // 3. Puntadas PEC
     finalBuffer.set(stitches, currentOffset);
 
     return finalBuffer;
   }
 
-  // Escribir encabezado PES v1
+  // PES v1 Header
   private static writePESHeader(pecBlockOffset: number): Uint8Array {
     const header = new Uint8Array(20);
 
@@ -82,7 +75,7 @@ export class PESWriter {
     return header;
   }
 
-  // Escribir encabezado PEC
+  // PEC header
   static writePecHeader(designName: string, colorChanges: number, width: number, height: number): Uint8Array {
     /*
       this.PEC_HEADER_SIZE + 20, toma en cuenta los 512 bytes del primer header y 20 bytes para el segundo, 
@@ -95,19 +88,19 @@ export class PESWriter {
     const header = new Uint8Array(this.PEC_HEADER_SIZE + 20);
     let offset = 0;
 
-    // 1. Escribir "LA:"
+    // 1. write "LA:"
     header.set([0x4c, 0x41, 0x3a], offset); // "L", "A", ":"
     offset += 3;
 
-    // 2. Nombre (8 chars + padding a 20 bytes)
+    // 2. Name (8 chars + padding to 20 bytes)
     const nameBytes = new TextEncoder().encode(designName.padEnd(8, " ").substring(0, 8));
     header.set(nameBytes, offset);
-    offset += 20; // Total 20 bytes para el nombre
+    offset += 20; // Total 20 bytes for the name
 
     // 3. Byte 0x0D
     header[offset++] = 0x0d;
 
-    // 4. 12 espacios (0x20)
+    // 4. 12 spaces (0x20)
     for (let i = 0; i < 12; i++) {
       header[offset++] = 0x20;
     }
@@ -120,12 +113,12 @@ export class PESWriter {
     header[offset++] = 0x06;
     header[offset++] = 0x26;
 
-    // 7. 12 espacios más
+    // 7. 12 more spaces
     for (let i = 0; i < 12; i++) {
       header[offset++] = 0x20;
     }
 
-    // 8. Número de cambios de color.
+    // 8. Number of color changes.
     /*
       Ubicacion 48, porque desde el readerPes accedo de esta forma, 
       const colorOffset = PEC_BYTE_OFFSET + MAP_BYTE.PEC_HEADER.FIRST_SECTION.COLOR_COUNT;, 
@@ -134,28 +127,28 @@ export class PESWriter {
     header[0x30] = colorChanges;
     offset++;
 
-    // 9. Índices de color alternados (2, 1, 2, 1, ...)
+    // 9. Alternating color indices (2, 1, 2, 1, ...)
     for (let i = 0; i < colorChanges; i++) {
       header[offset++] = i % 2 === 0 ? 2 : 1;
     }
 
     const spacesToFill = this.PEC_HEADER_SIZE - offset;
 
-    // 10. Rellenar con espacios hasta completar 463 bytes desde el inicio
-    // Hasta ahora hemos escrito: 3 + 20 + 1 + 12 + 2 + 2 + 12 + 1 + n = 53 + n bytes
+    // 10. Fill with spaces until 463 bytes are complete from the beginning
+    // So far we have written: 3 + 20 + 1 + 12 + 2 + 2 + 12 + 1 + n = 53 + n bytes
 
     for (let i = 0; i < spacesToFill; i++) {
       header[offset++] = 0x20;
     }
 
-    // 11. Ahora escribimos los últimos 16 bytes (512 - 463 = 49 bytes restantes)
-    // Pero según la especificación, los próximos son:
+    // 11. Now we write the last 16 bytes (512 - 463 = 49 bytes remaining)
+    // But according to the specification, the next ones are:
 
     // 2 bytes de zeros
-    offset += 2; // Simplemente avanzamos, los bytes ya son 0x00
+    offset += 2;
 
-    // Graphics offset (3 bytes) - placeholder para la posición de los gráficos
-    // Este valor se calculará más tarde cuando sepamos la posición de los gráficos
+    // Graphics offset (3 bytes) - placeholder for graphics position
+    // This value will be calculated later when we know the position of the graphics
     header[offset++] = 0x00;
     header[offset++] = 0x00;
     header[offset++] = 0x00;
@@ -165,7 +158,7 @@ export class PESWriter {
     header[offset++] = 0xff;
     header[offset++] = 0xf0;
 
-    // Usar DataView para los valores numéricos (Big Endian)
+    // Use DataView for numeric values ​​(Big Endian)
     const view = new DataView(header.buffer);
 
     // Width (2 bytes) - Big Endian
@@ -176,20 +169,20 @@ export class PESWriter {
     view.setUint16(offset, height, false);
     offset += 2;
 
-    // Valores fijos: 0x01E0, 0x01B0
+    // Fixed values: 0x01E0, 0x01B0
     view.setUint16(offset, 0x01e0, false);
     offset += 2;
     view.setUint16(offset, 0x01b0, false);
     offset += 2;
 
-    // MinX y MinY ajustados: 0x9000 - minX, 0x9000 - minY (Big Endian)
+    // Adjusted MinX and MinY: 0x9000 - minX, 0x9000 - minY (Big Endian)
     view.setUint16(offset, 0x9000, false);
     offset += 2;
     view.setUint16(offset, 0x9000, false);
     offset += 2;
 
     if (offset !== this.PEC_HEADER_SIZE + 20) {
-      throw new Error(`SECOND Header PEC tamaño incorrecto: ${offset} bytes, deberían ser ${this.PEC_HEADER_SIZE + 20}`);
+      throw new Error(`SECOND Header PEC wrong size: ${offset} bytes, should be ${this.PEC_HEADER_SIZE + 20} bytes.`);
     }
 
     return header;
@@ -205,22 +198,14 @@ export class PESWriter {
         // alternating back and forth. Starting with 2 and each additional color change use the next character in sequence.
         bytes.push(this.PEC_COMMANDS.COLOR_CHANGE_FLAG[0], this.PEC_COMMANDS.COLOR_CHANGE_FLAG[1], colorChangeCounter);
         colorChangeCounter = colorChangeCounter === 2 ? 1 : 2;
-        continue;
-      } else if (block.isTrim) {
+        // continue;
+      } else if (block.isJump) {
         // Jumps are long form stitches with the command bit for Jump set. 0b1001????_????????, 0b1001????_????????
         for (const stitch of block.stitches) {
           const dx = stitch.x;
           const dy = stitch.y;
 
-          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.JUMP_FLAG);
-        }
-        continue;
-      } else if (block.isJump) {
-        for (const stitch of block.stitches) {
-          const dx = stitch.x;
-          const dy = stitch.y;
-
-          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.JUMP_FLAG);
+          this.encodeJump(bytes, dx, dy);
         }
         continue;
       }
@@ -229,13 +214,7 @@ export class PESWriter {
         const dx = stitch.x;
         const dy = stitch.y;
 
-        if (Math.abs(dx) <= 127 && Math.abs(dy) <= 127) {
-          // Short form: 2 bytes for normal stitches
-          this.encodeShortStitch(bytes, dx, dy);
-        } else {
-          // Long form: 4 bytes for large moves
-          this.encodeLongStitch(bytes, dx, dy, this.PEC_COMMANDS.LONG_FLAG);
-        }
+        this.encodeNormalStitch(bytes, dx, dy);
       }
     }
 
@@ -247,7 +226,7 @@ export class PESWriter {
     bytes.push(dx & 0x7f, dy & 0x7f);
   }
 
-  private static encodeLongStitch_(bytes: number[], value: number, command: number): void {
+  private static encodeLongStitch(bytes: number[], value: number, command: number): void {
     const absValue = Math.min(2047, Math.abs(value));
     const signBit = value < 0 ? 0x08 : 0x00;
 
@@ -257,30 +236,20 @@ export class PESWriter {
     bytes.push(highByte, lowByte);
   }
 
-  private static encodeLongStitch(bytes: number[], dx: number, dy: number, command: number): void {
-    this.encodeLongStitch_(bytes, dx, command);
-    this.encodeLongStitch_(bytes, dy, command);
+  private static encodeJump(bytes: number[], dx: number, dy: number): void {
+    this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.JUMP_FLAG);
+    this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.JUMP_FLAG);
   }
 
-  // private static encodeJump(bytes: number[], dx: number, dy: number): void {
-  //   this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.JUMP_FLAG); // JUMP_FLAG
-  //   this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.JUMP_FLAG);
-  // }
-
-  // private static encodeTrim(bytes: number[], dx: number, dy: number): void {
-  //   this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.TRIM_FLAG); // TRIM_FLAG
-  //   this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.TRIM_FLAG);
-  // }
-
-  // private static encodeNormalStitch(bytes: number[], dx: number, dy: number): void {
-  //   if (Math.abs(dx) <= 63 && Math.abs(dy) <= 63) {
-  //     // Formato corto
-  //     bytes.push(dx & 0x7f);
-  //     bytes.push(dy & 0x7f);
-  //   } else {
-  //     // Formato largo
-  //     this.encodeLongStitch(bytes, dx, 0);
-  //     this.encodeLongStitch(bytes, dy, 0);
-  //   }
-  // }
+  private static encodeNormalStitch(bytes: number[], dx: number, dy: number): void {
+    if (Math.abs(dx) <= 127 && Math.abs(dy) <= 127) {
+      // Short form: 2 bytes for normal stitches
+      this.encodeShortStitch(bytes, dx, dy);
+    } else {
+      // Long form: 4 bytes for large moves
+      this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.LONG_FLAG);
+      this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.LONG_FLAG);
+    }
+  }
 }
+// -64 < value && value < 63

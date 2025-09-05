@@ -2,7 +2,7 @@ import { FORMAT_EMBROIDERY, type OutputStitchGeometry, type StitchBlock } from "
 import { DSTReader } from "./dst/DSTReader";
 import { JEFWriter } from "./jef/JEF.writer";
 import { JEFReader } from "./jef/JEF.reader";
-import { PESWriter } from "./PES.writer";
+import { PESWriter } from "./pes/PES.writer";
 
 export class EmbroideryManager {
   // Proccess for Three.Js
@@ -58,3 +58,10 @@ export class EmbroideryManager {
     return buffer;
   }
 }
+
+/*
+  DST -> JEF working
+  DST -> PES Not working
+  JEF -> JEF working
+  JEF -> PES Not working has expected
+*/
