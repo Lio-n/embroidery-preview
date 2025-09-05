@@ -2,8 +2,8 @@ import type { StitchBlock } from "@/types/embroidery.types";
 import { MAP_BYTE } from "./constants";
 
 export class JEFWriter {
-  private static readonly JEF_HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
   private static readonly COMMAND = MAP_BYTE.COMMANDS;
+  private static JEF_HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
 
   static getBuffer(stitchesBlocks: StitchBlock[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
@@ -19,6 +19,13 @@ export class JEFWriter {
   }
 
   private static writeHeader(colorChanges: number): Uint8Array {
+    // Recalc header size based on color changes
+    /*
+    `u32` 	4 * Color_Changes 	Magic Number Color Lookup 	List of colors changes.
+    `u32` 	4 * Color_Changes 	0x0D 	The values 0x0D, 0x0D, 0x0D, 0x0D repeated as many times as there are color changes. 
+    */
+    this.JEF_HEADER_SIZE += 4 * (colorChanges - 1) * 2;
+
     const header = new Uint8Array(this.JEF_HEADER_SIZE);
     const view = new DataView(header.buffer);
 
@@ -109,18 +116,18 @@ export class JEFWriter {
       }
     }
 
-    // // Magic Number Color Lookup (4 bytes per color change)
-    // for (let i = 0; i < colorChanges; i++) {
-    //     // Default color lookup values (may need adjustment based on actual colors)
-    //     view.setUint32(offset, 0x00000000, true);
-    //     offset += 4;
-    // }
+    // Magic Number Color Lookup (4 bytes per color change)
+    for (let i = 0; i < colorChanges - 1; i++) {
+      // Default color lookup values (may need adjustment based on actual colors)
+      view.setUint32(offset, 0x00000000, true);
+      offset += 4;
+    }
 
-    // // 0x0D values repeated for each color change
-    // for (let i = 0; i < colorChanges; i++) {
-    //     view.setUint32(offset, 0x0D0D0D0D, true);
-    //     offset += 4;
-    // }
+    // 0x0D values repeated for each color change
+    for (let i = 0; i < colorChanges - 1; i++) {
+      view.setUint32(offset, 0x0d0d0d0d, true);
+      offset += 4;
+    }
 
     return header;
   }

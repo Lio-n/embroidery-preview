@@ -14,6 +14,7 @@ import { ModeToggle } from "./components/mode-toggle";
 import { useEmbroideryStore } from "./stores/embroiderySource.store";
 // import { useIsMobile } from "./hooks/use-mobile";
 
+// https://embroideryviewer.xyz/
 // https://github.dev/EmbroidePy/EmbroideryIO/blob/master/core/src/main/java/org/embroideryio/embroideryio/JefWriter.java
 // https://medium.com/@devpedrodias/how-to-use-i18n-in-your-react-app-1f26deb2a3d8
 // https://github.dev/JoshVarga/EmbroideryMobile/tree/main/app/src/main/res/layout
