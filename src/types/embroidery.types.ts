@@ -67,9 +67,9 @@ export enum FORMAT_EMBROIDERY {
 
 export interface StitchBlock {
   stitches: Point[];
-  isJump?: boolean;
-  isTrim?: boolean;
-  isColorChange?: boolean;
+  isJump: boolean;
+  isTrim: boolean;
+  isColorChange: boolean;
 }
 export interface Stitch {
   x: number;

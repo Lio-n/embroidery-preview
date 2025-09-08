@@ -7,7 +7,7 @@ import { generatePalette } from "@/utils/generatePalette.utils";
 import { parseDatetime } from "@/helpers/parseDatetime.helper";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export class JEFReader extends BaseEmbroidery {
+export class EXPReader extends BaseEmbroidery {
   // Configuration and constants
   private readonly MAP_BYTE = MAP_BYTE;
   private uint8List!: Uint8Array<ArrayBuffer>;
@@ -42,7 +42,7 @@ export class JEFReader extends BaseEmbroidery {
         designMetrics: this.calculateDesignMetrics(),
       };
     } catch (error) {
-      throw new Error(`Failed to process JEF file: ${JSON.stringify(error)}`);
+      throw new Error(`Failed to process EXP file: ${JSON.stringify(error)}`);
     }
   }
 
@@ -140,8 +140,40 @@ export class JEFReader extends BaseEmbroidery {
     return { x, y, isJump, isColorChange };
   }
 
+  async getSimpleStitches(): Promise<void> {
+    if (!this.buffer) {
+      this.buffer = await blobToData(this.file);
+    }
+
+    const uint8List = new Uint8Array(this.buffer);
+    const limit = this.buffer.byteLength;
+    this.OFFSET_SIZE = 0;
+
+    for (let i = this.OFFSET_SIZE; i < limit - 1; i += this.BYTES_PER_STITCH) {
+      if (i >= limit - this.BYTES_PER_STITCH) break;
+
+      const b1 = uint8List[i];
+      const b2 = uint8List[i + 1];
+
+      // if (b1 === this.MAP_BYTE.COMMANDS.FLAG && b2 === this.MAP_BYTE.COMMANDS.END_FLAG) break;
+
+      const { x, y, isColorChange, isJump } = this.decodeBytes(b1, b2);
+
+      let command = COMMAND.STITCH;
+      if (isColorChange) {
+        command = COMMAND.COLOR_CHANGE;
+      }
+      if (isJump) {
+        command = COMMAND.JUMP;
+        continue;
+      }
+
+      this.stitches.push({ x, y, command });
+    }
+  }
+
   private async extractMetadata(): Promise<void> {
-    this.OFFSET_SIZE = this.uint8List[this.MAP_BYTE.OFFSET_STITCH];
+    this.OFFSET_SIZE = this.uint8List[0];
 
     const dateStr = new TextDecoder("ascii").decode(this.uint8List.subarray(8, 8 + 14));
     const date = parseDatetime(dateStr);
@@ -149,7 +181,7 @@ export class JEFReader extends BaseEmbroidery {
     this.metadata = {
       name: this.file.name.substring(0, this.file.name.lastIndexOf(".")),
       extension: this.file.name.split(".").pop()?.toUpperCase() || "",
-      color_changes: this.uint8List[this.MAP_BYTE.COLOR_COUNT],
+      color_changes: this.uint8List[this.MAP_BYTE.COMMANDS.COLOR_CHANGE_FLAG],
       date: date.toLocaleDateString(),
       stitches: 0,
       width: 0,
@@ -159,36 +191,5 @@ export class JEFReader extends BaseEmbroidery {
     };
 
     this.threeColors = generatePalette(this.metadata.color_changes);
-  }
-
-  async getSimpleStitches(): Promise<void> {
-    if (!this.buffer) {
-      this.buffer = await blobToData(this.file);
-    }
-
-    const uint8List = new Uint8Array(this.buffer);
-    const limit = this.buffer.byteLength;
-    this.OFFSET_SIZE = uint8List[this.MAP_BYTE.OFFSET_STITCH];
-
-    for (let i = this.OFFSET_SIZE; i < limit; i += this.BYTES_PER_STITCH) {
-      if (i >= limit - this.BYTES_PER_STITCH) break;
-
-      const b1 = uint8List[i];
-      const b2 = uint8List[i + 1];
-
-      if (b1 === this.MAP_BYTE.COMMANDS.FLAG && b2 === this.MAP_BYTE.COMMANDS.END_FLAG) break;
-
-      const { x, y, isColorChange, isJump } = this.decodeBytes(b1, b2);
-
-      let command = COMMAND.STITCH;
-      if (isJump) command = COMMAND.JUMP;
-      if (isColorChange) command = COMMAND.COLOR_CHANGE;
-
-      this.stitches.push({
-        x,
-        y,
-        command,
-      });
-    }
   }
 }

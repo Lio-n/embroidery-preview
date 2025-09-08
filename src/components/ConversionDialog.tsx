@@ -60,12 +60,11 @@ const ConversionForm = () => {
   const inputFileFormat = file?.name.split(".").pop()?.toUpperCase() as FORMAT_EMBROIDERY;
 
   const isSameFormat = inputFileFormat && selectedFormat === inputFileFormat;
-
   const isSubmitDisabled = !file || isSameFormat || form.formState.isSubmitting;
 
   useEffect(() => {
     if (file && inputFileFormat) {
-      const defaultFormat = inputFileFormat === FORMAT_EMBROIDERY.JEF ? FORMAT_EMBROIDERY.PES : FORMAT_EMBROIDERY.JEF;
+      const defaultFormat = inputFileFormat === FORMAT_EMBROIDERY.JEF ? FORMAT_EMBROIDERY.DST : FORMAT_EMBROIDERY.JEF;
 
       form.setValue("select_format", defaultFormat);
     }
@@ -104,7 +103,7 @@ const ConversionForm = () => {
             <FormItem>
               <FormLabel>File</FormLabel>
               <FormControl>
-                <Input onChange={handleFileChange} lang="en" type="file" placeholder="No file has been uploaded." accept=".dst" />
+                <Input onChange={handleFileChange} lang="en" type="file" placeholder="No file has been uploaded." accept=".dst,.jef" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -140,11 +139,16 @@ const ConversionForm = () => {
                 <SelectContent>
                   <SelectItem
                     value={FORMAT_EMBROIDERY.PES}
-                    disabled={inputFileFormat === FORMAT_EMBROIDERY.PES || inputFileFormat === FORMAT_EMBROIDERY.DST}
+                    disabled={
+                      inputFileFormat === FORMAT_EMBROIDERY.PES ||
+                      inputFileFormat === FORMAT_EMBROIDERY.DST ||
+                      inputFileFormat === FORMAT_EMBROIDERY.JEF
+                    }
                   >
                     {FORMAT_EMBROIDERY.PES}
                     {inputFileFormat === FORMAT_EMBROIDERY.PES && " (Current format)"}
                     {inputFileFormat === FORMAT_EMBROIDERY.DST && " (Coming soon)"}
+                    {inputFileFormat === FORMAT_EMBROIDERY.JEF && " (Coming soon)"}
                   </SelectItem>
                   <SelectItem value={FORMAT_EMBROIDERY.JEF} disabled={inputFileFormat === FORMAT_EMBROIDERY.JEF}>
                     {FORMAT_EMBROIDERY.JEF}
@@ -156,11 +160,16 @@ const ConversionForm = () => {
                   </SelectItem>
                   <SelectItem
                     value={FORMAT_EMBROIDERY.EXP}
-                    disabled={inputFileFormat === FORMAT_EMBROIDERY.EXP || inputFileFormat === FORMAT_EMBROIDERY.DST}
+                    disabled={
+                      inputFileFormat === FORMAT_EMBROIDERY.EXP ||
+                      inputFileFormat === FORMAT_EMBROIDERY.DST ||
+                      inputFileFormat === FORMAT_EMBROIDERY.JEF
+                    }
                   >
                     {FORMAT_EMBROIDERY.EXP}
                     {inputFileFormat === FORMAT_EMBROIDERY.EXP && " (Current format)"}
                     {inputFileFormat === FORMAT_EMBROIDERY.DST && " (Coming soon)"}
+                    {inputFileFormat === FORMAT_EMBROIDERY.JEF && " (Coming soon)"}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -182,7 +191,7 @@ const ConversionForm = () => {
               <strong>DST</strong> → JEF
             </li>
             <li className={inputFileFormat === FORMAT_EMBROIDERY.JEF ? "text-green-600" : ""}>
-              <strong>JEF</strong> → Coming soon
+              <strong>JEF</strong> → DST
             </li>
             <li className={inputFileFormat === FORMAT_EMBROIDERY.PES ? "text-green-600" : ""}>
               <strong>PES</strong> → Coming soon

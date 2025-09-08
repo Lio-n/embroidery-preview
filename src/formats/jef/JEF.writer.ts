@@ -3,7 +3,7 @@ import { MAP_BYTE } from "./constants";
 
 export class JEFWriter {
   private static readonly COMMAND = MAP_BYTE.COMMANDS;
-  private static JEF_HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
+  private static HEADER_SIZE = 116; // BASIC HEADER BYTES -> 4 + 4 + 14 + 1 + 1 + 4 + 4 + 4 + 16 + 16 + 16 + 16 + 16 = 116
 
   static getBuffer(stitchesBlocks: StitchBlock[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
@@ -24,9 +24,9 @@ export class JEFWriter {
     `u32` 	4 * Color_Changes 	Magic Number Color Lookup 	List of colors changes.
     `u32` 	4 * Color_Changes 	0x0D 	The values 0x0D, 0x0D, 0x0D, 0x0D repeated as many times as there are color changes. 
     */
-    this.JEF_HEADER_SIZE += 4 * (colorChanges - 1) * 2;
+    this.HEADER_SIZE += 4 * (colorChanges - 1) * 2;
 
-    const header = new Uint8Array(this.JEF_HEADER_SIZE);
+    const header = new Uint8Array(this.HEADER_SIZE);
     const view = new DataView(header.buffer);
 
     let offset = 0;

@@ -5,7 +5,7 @@ import type { OutpusReaderFormats, OutputStitchGeometry, SuportFormats } from "@
 import { readStitchesXXX } from "./xxx/readStitches.xxx";
 import { readStitchesPES } from "./pes/readStitches.pes";
 import { readStitchesEXP } from "./exp/readStitches.exp";
-import { DSTReader } from "./dst/DSTReader";
+import { DSTReader } from "./dst/DST.reader";
 import { JEFReader } from "./jef/JEF.reader";
 
 export const readerEmbroideryFormats = async (extension: SuportFormats, file: File): Promise<OutpusReaderFormats> => {

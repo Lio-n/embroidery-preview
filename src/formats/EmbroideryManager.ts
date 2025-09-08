@@ -1,8 +1,10 @@
 import { FORMAT_EMBROIDERY, type OutputStitchGeometry, type StitchBlock } from "@/types/embroidery.types";
-import { DSTReader } from "./dst/DSTReader";
+import { DSTReader } from "./dst/DST.reader";
 import { JEFWriter } from "./jef/JEF.writer";
 import { JEFReader } from "./jef/JEF.reader";
-import { PESWriter } from "./pes/PES.writer";
+// import { PESWriter } from "./pes/PES.writer";
+import { DSTWriter } from "./dst/DST.writer";
+// import { EXPReader } from "./exp/EXP.reader";
 
 export class EmbroideryManager {
   // Proccess for Three.Js
@@ -32,6 +34,11 @@ export class EmbroideryManager {
         await r.getSimpleStitches();
         return r.createToStitchBlocks();
       }
+      // case FORMAT_EMBROIDERY.EXP: {
+      //   const r = new EXPReader(file);
+      //   await r.getSimpleStitches();
+      //   return r.createToStitchBlocks();
+      // }
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -39,10 +46,14 @@ export class EmbroideryManager {
 
   private writeFile(design: StitchBlock[], format: FORMAT_EMBROIDERY): Uint8Array {
     switch (format) {
+      case FORMAT_EMBROIDERY.DST: {
+        const r = new DSTWriter(design);
+        return r.getBuffer();
+      }
       case FORMAT_EMBROIDERY.JEF:
         return JEFWriter.getBuffer(design);
-      case FORMAT_EMBROIDERY.PES:
-        return PESWriter.getBuffer(design);
+      // case FORMAT_EMBROIDERY.PES:
+      //   return PESWriter.getBuffer(design);
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -64,4 +75,5 @@ export class EmbroideryManager {
   DST -> PES Not working
   JEF -> JEF working
   JEF -> PES Not working has expected
+  EXP -> JEF Not working has expected
 */

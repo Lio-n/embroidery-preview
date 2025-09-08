@@ -143,6 +143,8 @@ export class BaseEmbroidery {
         blocks.push({
           stitches: [],
           isColorChange: true,
+          isJump: false,
+          isTrim: false,
         });
         continue;
       }
