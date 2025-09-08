@@ -141,6 +141,8 @@ export class DSTWriter {
 
     switch (flags) {
       case FLAG_MAP.JUMP:
+
+      // @ts-expect-error fallthrough - continue with SEQUIN_EJECT
       case FLAG_MAP.SEQUIN_EJECT:
         b2 = setBit(b2, 7); // jumpstitch 10xxxx11
       // fallthrough - continue with STITCH
