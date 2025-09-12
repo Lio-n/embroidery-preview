@@ -38,37 +38,37 @@ export class PESWriter {
   private static readonly STITCH_CODE = 0x00; // Código para stitch normal
   // private static readonly COLOR_CHANGE_CODE = 0xfe; // Inicio de cambio de color
 
-  private static calculateBounds(blocks: StitchBlock[]): {
-    width: number;
-    height: number;
-    minX: number;
-    minY: number;
-  } {
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-    let x = 0,
-      y = 0;
+  // private static calculateBounds(blocks: StitchBlock[]): {
+  //   width: number;
+  //   height: number;
+  //   minX: number;
+  //   minY: number;
+  // } {
+  //   let minX = Infinity,
+  //     minY = Infinity,
+  //     maxX = -Infinity,
+  //     maxY = -Infinity;
+  //   let x = 0,
+  //     y = 0;
 
-    for (const block of blocks) {
-      for (const stitch of block.stitches) {
-        x += stitch.x;
-        y += stitch.y;
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-      }
-    }
+  //   for (const block of blocks) {
+  //     for (const stitch of block.stitches) {
+  //       x += stitch.x;
+  //       y += stitch.y;
+  //       minX = Math.min(minX, x);
+  //       minY = Math.min(minY, y);
+  //       maxX = Math.max(maxX, x);
+  //       maxY = Math.max(maxY, y);
+  //     }
+  //   }
 
-    return {
-      width: maxX - minX,
-      height: maxY - minY,
-      minX,
-      minY,
-    };
-  }
+  //   return {
+  //     width: maxX - minX,
+  //     height: maxY - minY,
+  //     minX,
+  //     minY,
+  //   };
+  // }
 
   static getBuffer(stitchesBlocks: StitchBlock[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
