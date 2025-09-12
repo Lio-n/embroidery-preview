@@ -1,16 +1,81 @@
 import type { StitchBlock } from "@/types/embroidery.types";
 import { MAP_BYTE } from "./constants";
 
+/*
+export const MAP_BYTE = {
+  COMMANDS: {
+    JUMP_FLAG: 0x10,
+    TRIM_FLAG: 0x20,
+    LONG_FLAG: 0x80,
+    END_FLAG: 0xff,
+    COLOR_CHANGE_FLAG: [0xfe, 0xb0],
+    COLOR_CHANGE: (b1: number, b2: number) => b1 === 0xfe && b2 === 0xb0,
+    END: (b1: number, b2: number) => (b1 === 0xff && b2 === 0x00) || b2 === undefined,
+  },
+  PEC_HEADER: {
+    FIRST_SECTION: {
+      LA: 0x13, // Number of colors minus one
+      COLOR_COUNT: 0x30, // Number of colors minus one
+    },
+    SECOND_SECTION: {
+      WIDTH: PEC_HEADER_SIZE + 8, // s16 in the doc says, 10 but is 8
+      HEIGHT: PEC_HEADER_SIZE + 10, // s16 in the doc says, 12 but is 10
+      "0x01E0": PEC_HEADER_SIZE + 12,
+      "0x01B0": PEC_HEADER_SIZE + 14,
+      "pec-stitch-list-subsection": PEC_HEADER_SIZE + 20,
+    },
+  },
+};
+
+*/
 export class PESWriter {
   private static readonly PES_HEADER = "#PES0001";
   private static readonly PEC_HEADER_SIZE = 512;
-  private static readonly PEC_COMMANDS = MAP_BYTE.COMMANDS;
+  private static readonly MAP_BYTE = MAP_BYTE;
+
+  private static readonly JUMP_CODE = 0x90; // Código para jump
+  private static readonly TRIM_CODE = 0x80; // Código para trim
+  private static readonly STITCH_CODE = 0x00; // Código para stitch normal
+  private static readonly COLOR_CHANGE_CODE = 0xfe; // Inicio de cambio de color
+
+  private static calculateBounds(blocks: StitchBlock[]): {
+    width: number;
+    height: number;
+    minX: number;
+    minY: number;
+  } {
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+    let x = 0,
+      y = 0;
+
+    for (const block of blocks) {
+      for (const stitch of block.stitches) {
+        x += stitch.x;
+        y += stitch.y;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+
+    return {
+      width: maxX - minX,
+      height: maxY - minY,
+      minX,
+      minY,
+    };
+  }
 
   static getBuffer(stitchesBlocks: StitchBlock[]): Uint8Array {
     const stitches = this.encodeStitches(stitchesBlocks);
     const designName = "Design";
     const colorChanges = stitchesBlocks.filter((b) => b.isColorChange).length;
 
+    const bounds = this.calculateBounds(stitchesBlocks);
     const width = 100;
     const height = 100;
 
@@ -188,37 +253,41 @@ export class PESWriter {
     return header;
   }
 
-  static encodeStitches(blocks: StitchBlock[]): Uint8Array {
+  static encodeStitches_(blocks: StitchBlock[]): Uint8Array {
     const bytes: number[] = [];
     let colorChangeCounter = 2;
+    let x = 0,
+      y = 0;
 
     for (const block of blocks) {
       if (block.isColorChange) {
         // Color changes should write: Write 1 byte: 0xfe Write 1 byte: 0xb0 Write 1 byte: 2, 1, 2, 1, 2, 1...
         // alternating back and forth. Starting with 2 and each additional color change use the next character in sequence.
-        bytes.push(this.PEC_COMMANDS.COLOR_CHANGE_FLAG[0], this.PEC_COMMANDS.COLOR_CHANGE_FLAG[1], colorChangeCounter);
+        bytes.push(this.MAP_BYTE.COMMANDS.COLOR_CHANGE_FLAG[0], this.MAP_BYTE.COMMANDS.COLOR_CHANGE_FLAG[1], colorChangeCounter);
         colorChangeCounter = colorChangeCounter === 2 ? 1 : 2;
-        // continue;
+        continue;
       } else if (block.isJump) {
         // Jumps are long form stitches with the command bit for Jump set. 0b1001????_????????, 0b1001????_????????
         for (const stitch of block.stitches) {
-          const dx = stitch.x;
-          const dy = stitch.y;
+          const dx = stitch.x + x;
+          const dy = stitch.y + y;
 
           this.encodeJump(bytes, dx, dy);
         }
+
         continue;
       }
 
       for (const stitch of block.stitches) {
         const dx = stitch.x;
-        const dy = stitch.y;
-
+        const dy = -stitch.y;
+        x += dx;
+        y += dy;
         this.encodeNormalStitch(bytes, dx, dy);
       }
     }
 
-    bytes.push(this.PEC_COMMANDS.END_FLAG); // END
+    bytes.push(this.MAP_BYTE.COMMANDS.END_FLAG); // END
     return new Uint8Array(bytes);
   }
 
@@ -237,8 +306,8 @@ export class PESWriter {
   }
 
   private static encodeJump(bytes: number[], dx: number, dy: number): void {
-    this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.JUMP_FLAG);
-    this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.JUMP_FLAG);
+    this.encodeLongStitch(bytes, dx, this.MAP_BYTE.COMMANDS.JUMP_FLAG);
+    this.encodeLongStitch(bytes, dy, this.MAP_BYTE.COMMANDS.JUMP_FLAG);
   }
 
   private static encodeNormalStitch(bytes: number[], dx: number, dy: number): void {
@@ -247,9 +316,95 @@ export class PESWriter {
       this.encodeShortStitch(bytes, dx, dy);
     } else {
       // Long form: 4 bytes for large moves
-      this.encodeLongStitch(bytes, dx, this.PEC_COMMANDS.LONG_FLAG);
-      this.encodeLongStitch(bytes, dy, this.PEC_COMMANDS.LONG_FLAG);
+      this.encodeLongStitch(bytes, dx, this.MAP_BYTE.COMMANDS.LONG_FLAG);
+      this.encodeLongStitch(bytes, dy, this.MAP_BYTE.COMMANDS.LONG_FLAG);
+    }
+  }
+
+  static encodeStitches(blocks: StitchBlock[]): Uint8Array {
+    const bytes: number[] = [];
+    let colorTwo = true;
+    let jumping = false;
+    let isInitial = true;
+
+    for (const block of blocks) {
+      if (block.isColorChange) {
+        if (jumping) {
+          // Finalizar salto antes de cambio de color
+          this.writeValue(bytes, 0, false, this.STITCH_CODE);
+          this.writeValue(bytes, 0, false, this.STITCH_CODE);
+          jumping = false;
+        }
+
+        // Comando de cambio de color
+        bytes.push(0xfe, 0xb0);
+        bytes.push(colorTwo ? 2 : 1);
+        colorTwo = !colorTwo;
+        isInitial = false;
+        continue;
+      }
+
+      for (const stitch of block.stitches) {
+        const dx = stitch.x;
+        const dy = -stitch.y;
+
+        if (block.isJump) {
+          jumping = true;
+
+          if (isInitial) {
+            // Salto inicial
+            this.writeValue(bytes, dx, true, this.JUMP_CODE);
+            this.writeValue(bytes, dy, true, this.JUMP_CODE);
+          } else {
+            // Trim o salto posterior
+            this.writeValue(bytes, dx, true, this.TRIM_CODE);
+            this.writeValue(bytes, dy, true, this.TRIM_CODE);
+          }
+          isInitial = false;
+        } else {
+          // Stitch normal
+          if (jumping) {
+            // Finalizar salto antes de stitch normal
+            this.writeValue(bytes, 0, false, this.STITCH_CODE);
+            this.writeValue(bytes, 0, false, this.STITCH_CODE);
+            jumping = false;
+          }
+
+          if (Math.abs(dx) < 127 && Math.abs(dy) < 127) {
+            // Stitch corto (2 bytes)
+            this.writeValue(bytes, dx, true, this.STITCH_CODE);
+            this.writeValue(bytes, dy, true, this.STITCH_CODE);
+          } else {
+            // Stitch largo (4 bytes)
+            this.writeValue(bytes, dx, false, this.STITCH_CODE);
+            this.writeValue(bytes, dy, false, this.STITCH_CODE);
+          }
+          isInitial = false;
+        }
+      }
+    }
+
+    // Comando END
+    bytes.push(0xff);
+    return new Uint8Array(bytes);
+  }
+
+  private static writeValue(bytes: number[], value: number, isShort: boolean, command: number): void {
+    if (isShort) {
+      // Formato corto: 1 byte
+      if (value < -128 || value > 127) {
+        throw new Error(`Short stitch value out of range: ${value}`);
+      }
+      bytes.push(value & 0x7f);
+    } else {
+      // Formato largo: 2 bytes con comando
+      const absValue = Math.min(2047, Math.abs(value));
+      const signBit = value < 0 ? 0x08 : 0x00;
+
+      const highByte = command | signBit | ((absValue >> 8) & 0x07);
+      const lowByte = absValue & 0xff;
+
+      bytes.push(highByte, lowByte);
     }
   }
 }
-// -64 < value && value < 63
