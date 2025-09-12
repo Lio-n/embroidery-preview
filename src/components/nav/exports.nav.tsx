@@ -1,29 +1,13 @@
-import { ChevronRight, Download, RefreshCcwDot } from "lucide-react";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { ChevronRight, Download } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem } from "@/components/ui/sidebar";
 import { DownloadDialog } from "@/components/DownloadDialog";
+import { ConversionDialog } from "../ConversionDialog";
 
 export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
   return (
     <SidebarMenu>
-      <Collapsible
-        key="Exports"
-        asChild
-        defaultOpen={true}
-        className="group/collapsible"
-      >
+      <Collapsible key="Exports" asChild defaultOpen={true} className="group/collapsible">
         <SidebarMenuItem>
           <CollapsibleTrigger asChild>
             <SidebarMenuButton tooltip="Exports">
@@ -33,23 +17,20 @@ export const NavExports = ({ isFileLoaded }: { isFileLoaded: boolean }) => {
             </SidebarMenuButton>
           </CollapsibleTrigger>
 
-          {isFileLoaded ? (
-            <CollapsibleContent className="mb-4">
-              <SidebarMenuSub className="pt-2 text-xs text-left">
+          <CollapsibleContent className="mb-4">
+            <SidebarMenuSub className="pt-2 text-left">
+              {isFileLoaded ? (
                 <SidebarMenuSubItem key={"ExportsDownload"} className="mb-2">
                   <DownloadDialog />
                 </SidebarMenuSubItem>
-
-                <SidebarMenuSubItem key={"ExportsConversion"}>
-                  <Button variant="outline" size="sm" disabled>
-                    <RefreshCcwDot /> Conversion
-                  </Button>
-                </SidebarMenuSubItem>
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          ) : (
-            <p className="italic select-none text-xs">No file loaded</p>
-          )}
+              ) : (
+                <p className="italic select-none text-xs text-center mb-2">No file loaded</p>
+              )}
+              <SidebarMenuSubItem key={"ExportsConversion"}>
+                <ConversionDialog />
+              </SidebarMenuSubItem>
+            </SidebarMenuSub>
+          </CollapsibleContent>
         </SidebarMenuItem>
       </Collapsible>
     </SidebarMenu>

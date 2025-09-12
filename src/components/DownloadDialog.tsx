@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, type TypeFormSchema } from "@/validations/download.validation";
+import { DownloadFormSchema, type TypeDownloadFormSchema } from "@/validations/download.validation";
 import { useEmbroideryViewer } from "@/stores/embroideryViewer.store";
 
 export const DownloadDialog = () => {
@@ -48,15 +48,16 @@ const DownloadForm = () => {
   const EmbStore = useEmbroideryStore();
   const EmbViewer = useEmbroideryViewer();
 
-  const form = useForm<TypeFormSchema>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TypeDownloadFormSchema>({
+    resolver: zodResolver(DownloadFormSchema),
     defaultValues: {
       file_name: EmbStore.filesDetails?.name || "",
       select_format: "svg",
     },
   });
+  const { isSubmitting } = form.formState;
 
-  const onSubmit = (data: TypeFormSchema) => {
+  const onSubmit = (data: TypeDownloadFormSchema) => {
     EmbStore.setState({ filesDetails: { name: data.file_name } });
     EmbViewer.downloadScreenshot({
       format: data.select_format,
@@ -89,7 +90,7 @@ const DownloadForm = () => {
               <Select {...field} defaultValue={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select your license type..." />
+                    <SelectValue />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -122,12 +123,12 @@ const DownloadForm = () => {
 
         <DialogFooter className="mt-6">
           <DialogClose asChild>
-            <Button variant="outline" disabled={EmbViewer.isExporting}>
+            <Button variant="outline" disabled={EmbViewer.isExporting || isSubmitting}>
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit" disabled={EmbViewer.isExporting}>
-            Download
+          <Button type="submit" disabled={EmbViewer.isExporting || isSubmitting}>
+            {isSubmitting ? "Downloading..." : "Download"}
           </Button>
         </DialogFooter>
       </form>

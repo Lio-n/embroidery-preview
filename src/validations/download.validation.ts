@@ -3,7 +3,7 @@ import { z } from "zod";
 const ExportFormatEnum = z.enum(["svg", "png", "jpg", "webp"]);
 export type ExportFormat = z.infer<typeof ExportFormatEnum>;
 
-export const formSchema = z.object({
+export const DownloadFormSchema = z.object({
   file_name: z
     .string()
     .trim()
@@ -19,4 +19,4 @@ export const formSchema = z.object({
   select_format: ExportFormatEnum,
 });
 
-export type TypeFormSchema = z.output<typeof formSchema>;
+export type TypeDownloadFormSchema = z.output<typeof DownloadFormSchema>;

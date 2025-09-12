@@ -20,7 +20,7 @@ export type ColorGroup = {
   count: number;
   color: [number, number, number]; // RGB
 };
-export type StitchBlock = {
+export type ThreeBlock = {
   vertices: Float32Array<ArrayBuffer>;
   colors: Uint8Array<ArrayBuffer>;
 };
@@ -38,13 +38,48 @@ export type DesignMetrics = {
   };
 };
 
-export type OutputReadStitches = {
-  blocks: StitchBlock[];
+export type OutputStitchGeometry = {
+  blocks: ThreeBlock[];
   colorGroup: ColorGroup[];
   filesDetails: FileDetails;
   designMetrics: DesignMetrics;
 };
 
-export type OutpusReaderFormats = OutputReadStitches & {
+export type OutpusReaderFormats = OutputStitchGeometry & {
   lines: Line<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap>, Material | Material[], Object3DEventMap>[];
 };
+
+export enum COMMAND {
+  STITCH = "STITCH",
+  JUMP = "JUMP",
+  COLOR_CHANGE = "COLOR_CHANGE",
+  END = "END",
+  TRIM = "TRIM",
+}
+
+export enum FORMAT_EMBROIDERY {
+  DST = "DST",
+  JEF = "JEF",
+  PES = "PES",
+  XXX = "XXX",
+  EXP = "EXP",
+}
+
+export interface StitchBlock {
+  stitches: Point[];
+  isJump: boolean;
+  isTrim: boolean;
+  isColorChange: boolean;
+}
+export interface Stitch {
+  x: number;
+  y: number;
+  command: COMMAND;
+}
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export type DecodedBytes = Point & Pick<StitchBlock, "isJump" | "isColorChange">;

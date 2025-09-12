@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import type { BufferGeometry, Line } from "three";
 import type { RefObject } from "react";
-import type { ColorGroup, DesignMetrics, FileDetails, OutputReadStitches } from "@/types/embroidery.types";
+import type { ColorGroup, DesignMetrics, FileDetails, OutputStitchGeometry } from "@/types/embroidery.types";
 import type { DeepPartial, PartialNull } from "@/types/general.types";
 
-export interface EmbroideryStoreState extends PartialNull<OutputReadStitches> {
+export interface EmbroideryStoreState extends PartialNull<OutputStitchGeometry> {
   geometries: Line[] | null;
   geometryRef: RefObject<BufferGeometry | null> | null;
 }
 
 export type EmbroideryStoreActions = {
   updateSource: (data: Partial<EmbroideryStoreState>) => void;
-  setState: (data: DeepPartial<OutputReadStitches>) => void;
+  setState: (data: DeepPartial<OutputStitchGeometry>) => void;
   updateBlockColors: (colorGroups: ColorGroup[]) => void;
 };
 

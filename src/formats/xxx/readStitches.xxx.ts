@@ -1,18 +1,11 @@
 import { blobToData } from "@/helpers/processBuffer.helper";
 import { decodeSignedByte } from "@/helpers/readBit.helper";
-import type {
-  ColorGroup,
-  FileDetails,
-  OutputReadStitches,
-  StitchBlock,
-} from "@/types/embroidery.types";
+import type { ColorGroup, FileDetails, OutputStitchGeometry, ThreeBlock } from "@/types/embroidery.types";
 import { generatePalette } from "@/utils/generatePalette.utils";
 import { MAP_BYTE } from "./constants";
 import { colorFloatToUint8 } from "@/utils/colorUtils.utils";
 
-export const readStitchesXXX = async (
-  file: File
-): Promise<OutputReadStitches> => {
+export const readStitchesXXX = async (file: File): Promise<OutputStitchGeometry> => {
   const buffer = await blobToData(file);
   const view = new DataView(buffer);
   const uint8List = new Uint8Array(buffer);
@@ -55,7 +48,7 @@ export const readStitchesXXX = async (
     color: [currentColor.r, currentColor.g, currentColor.b],
   };
 
-  const blocks: StitchBlock[] = [];
+  const blocks: ThreeBlock[] = [];
   const estimatedPoints = Math.floor(file.size / 2);
 
   let vertices = new Float32Array(estimatedPoints * 3);
@@ -164,11 +157,7 @@ export const readStitchesXXX = async (
     vertices[vIndex++] = cy;
     vertices[vIndex++] = 0;
 
-    const tempColor = colorFloatToUint8([
-      currentColor.r,
-      currentColor.g,
-      currentColor.b,
-    ]);
+    const tempColor = colorFloatToUint8([currentColor.r, currentColor.g, currentColor.b]);
 
     colors[cIndex++] = tempColor[0];
     colors[cIndex++] = tempColor[1];
