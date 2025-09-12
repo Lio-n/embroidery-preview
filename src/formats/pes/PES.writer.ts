@@ -36,7 +36,7 @@ export class PESWriter {
   private static readonly JUMP_CODE = 0x90; // Código para jump
   private static readonly TRIM_CODE = 0x80; // Código para trim
   private static readonly STITCH_CODE = 0x00; // Código para stitch normal
-  private static readonly COLOR_CHANGE_CODE = 0xfe; // Inicio de cambio de color
+  // private static readonly COLOR_CHANGE_CODE = 0xfe; // Inicio de cambio de color
 
   private static calculateBounds(blocks: StitchBlock[]): {
     width: number;
@@ -75,7 +75,7 @@ export class PESWriter {
     const designName = "Design";
     const colorChanges = stitchesBlocks.filter((b) => b.isColorChange).length;
 
-    const bounds = this.calculateBounds(stitchesBlocks);
+    // const bounds = this.calculateBounds(stitchesBlocks);
     const width = 100;
     const height = 100;
 
