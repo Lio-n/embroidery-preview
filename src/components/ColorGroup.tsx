@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BufferGeometry, Float32BufferAttribute, type BufferGeometryEventMap, type NormalBufferAttributes } from "three";
 import type { ColorGroup as TColorGroup } from "@/types/embroidery.types";
 import { ColorPicker } from "./ColorPicker";
+import { Button } from "./ui/button";
+import { Dices } from "lucide-react";
 
 export type ColorRange = {
   geometryRef: React.RefObject<BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap> | null>;
@@ -87,6 +89,17 @@ export const ColorGroup = () => {
     });
   }, []);
 
+  const assignRandomColors = useCallback(() => {
+    setColorGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        color: [Math.random(), Math.random(), Math.random()],
+      }))
+    );
+
+    EmbStore.updateBlockColors(colorGroups);
+  }, [EmbStore, colorGroups]);
+
   return (
     <div className="flex flex-wrap gap-2">
       {colorGroups.map((_, i) => (
@@ -94,6 +107,10 @@ export const ColorGroup = () => {
           <ColorPicker onChange={(v) => handleColorChange(i, v as string)} value={colorHexCache[i]} />
         </div>
       ))}
+
+      <Button variant="outline" size="sm" onClick={assignRandomColors}>
+        <Dices /> Random
+      </Button>
     </div>
   );
 };

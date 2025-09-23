@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -23,6 +23,10 @@ const ColorPicker = forwardRef<HTMLInputElement, Omit<ButtonProps, "value" | "on
     const ref = useForwardedRef(forwardedRef);
     const [open, setOpen] = useState(false);
     const [color, setColor] = useState(value);
+
+    useEffect(() => {
+      setColor(value);
+    }, [value]);
 
     const parsedValue = useMemo(() => {
       return color || "#FFFFFF";

@@ -5,12 +5,12 @@ import { Slider } from "./ui/slider";
 export const StitchRange = () => {
   const EmbStore = useEmbroideryStore();
 
-  const [progress, setProgress] = useState(Infinity); // Default to a large number to show all initially
+  const [progress, setProgress] = useState(EmbStore.filesDetails?.stitches as number); // Default to a large number to show all initially
 
   useEffect(() => {
     if (!EmbStore.geometries) return;
 
-    let remaining = progress;
+    let remaining = progress ?? EmbStore.filesDetails?.stitches ?? 0;
     EmbStore.geometries.forEach((line) => {
       const vertexCount = line.geometry.getAttribute("position").count;
       if (remaining > 0) {
@@ -36,12 +36,7 @@ export const StitchRange = () => {
 
   return (
     <>
-      <Slider
-        defaultValue={[progress]}
-        max={maxDrawRange}
-        step={10}
-        onValueChange={(e) => setProgress(e[0])}
-      />
+      <Slider defaultValue={[progress]} max={maxDrawRange} step={10} onValueChange={(e) => setProgress(e[0])} />
     </>
   );
 };
